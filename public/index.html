@@ -1,72 +1,65 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <meta charset="utf-8" />
-    <base href="/assets/">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong
-        >We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
-        properly without JavaScript enabled. Please enable it to
-        continue.</strong
-      >
-    </noscript>
-    <div id="app">
-      <div style="position: absolute;left:calc(50% - 35px);top:calc(50% - 35px)">
-        <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-             x="0px" y="0px"
-             width="70px" height="70px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;"
-             xml:space="preserve">
-  <path fill="#DB3A0A"
-        d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
-      <animateTransform attributeType="xml"
-                        attributeName="transform"
-                        type="rotate"
-                        from="0 25 25"
-                        to="360 25 25"
-                        dur="0.6s"
-                        repeatCount="indefinite"/>
-  </path>
-  </svg>
-      </div>
-    </div>
-    <script>
-      window.onload = () => {
-        Coloris({
-          el: '.coloris',
-          alpha: false,
-          swatches: [
-            '#ffffff', //
-            '#000000', //
-            '#000080', //navy
-            '#0000FF', //blue
-            // '#006400', //DarkGreen
-            // '#008080', //teal
-            // '#00CED1', //DarkTurquoise
-            '#00FA9A', //MediumSpringGreen
-            '#00FF00', //lime
-            '#191970', //MidnightBlue
-            '#4169E1', //RoyalBlue
-            // '#4B0082', //Indigo
-            // '#800000', //Maroon
-            // '#800080', //Purple
-            // '#87CEEB', //SkyBlue
-            // '#B22222', //FireBrick
-            '#FF00FF', //Fuchsia
-            '#FF0000', //red
-            // '#FF4500', //OrangeRed
-            // '#FF8C00', //Darkorange
-            '#FFFF00', //Yellow
-            '#FFFFE0', //LightYellow
-          ]
-        });
+<head>
+  <meta charset="utf-8"/>
+  <base href="/assets/">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico"/>
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <style>
+    @keyframes dash {
+      to {
+        stroke-dashoffset: 136;
       }
-    </script>
-    <!-- built files will be auto injected -->
-  </body>
+    }
+
+    @keyframes rotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <svg width="100px" height="100px" style="position: absolute;left:calc(50% - 50px);top:calc(50% - 50px)"
+       viewBox="-3 -4 39 39">
+    <polygon style="stroke-dasharray: 17;animation: dash 2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) infinite;"
+             fill="#ffffff" stroke="#ff0000" stroke-width="1" points="16,0 32,32 0,32"></polygon>
+  </svg>
+</div>
+<script>
+  window.onload = () => {
+    Coloris({
+      el: '.coloris',
+      alpha: false,
+      swatches: [
+        '#ffffff', //
+        '#000000', //
+        '#000080', //navy
+        '#0000FF', //blue
+        // '#006400', //DarkGreen
+        // '#008080', //teal
+        // '#00CED1', //DarkTurquoise
+        '#00FA9A', //MediumSpringGreen
+        '#00FF00', //lime
+        '#191970', //MidnightBlue
+        '#4169E1', //RoyalBlue
+        // '#4B0082', //Indigo
+        // '#800000', //Maroon
+        // '#800080', //Purple
+        // '#87CEEB', //SkyBlue
+        // '#B22222', //FireBrick
+        '#FF00FF', //Fuchsia
+        '#FF0000', //red
+        // '#FF4500', //OrangeRed
+        // '#FF8C00', //Darkorange
+        '#FFFF00', //Yellow
+        '#FFFFE0', //LightYellow
+      ]
+    });
+  }
+</script>
+</body>
 </html>

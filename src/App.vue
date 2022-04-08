@@ -65,7 +65,7 @@
           <!--     текст     -->
           <div v-if="layer.type === 'txt'">
             <div :id="index" class="contenteditable" :class="layer.class"
-                 :style="{transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', fontFamily: layer.fontFamily, color: layer.color, fontSize: layer.fontSize + 'px', letterSpacing: layer.interval + 'px', visibility: layer.visibility, zIndex: layer.zIndex, textShadow: layer.shadowX + 'px ' + layer.shadowY + 'px ' + layer.shadowR + 'px ' + layer.shadowColor, textAlign: layer.textAlign}">
+                 :style="{transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', fontFamily: layer.fontFamily, color: layer.color, fontSize: layer.fontSize + 'px', letterSpacing: layer.interval + 'px', visibility: layer.visibility, zIndex: layer.zIndex, textShadow: layer.shadowX + 'px ' + layer.shadowY + 'px ' + layer.shadowR + 'px ' + layer.shadowColor, lineHeight: layer.lineHeight + 'px'}">
               {{ layer.content }}
             </div>
             <moveable
@@ -110,6 +110,7 @@
       <!--    -->
     </div>
     <div class="right">
+      <div class="right-inner">
       <button v-if="!showBgGalery" @click="showBgList" class="btn btn-secondary">Выбор фона</button>
       <!--      <button @click="loadBg" type="button" class="btn btn-secondary" style="margin-left: 1em">загрузить свой фон
             </button>-->
@@ -136,17 +137,36 @@
       </div>
       <div v-if="(tmpLayer.type == 'txt' && tmpLayer.inUse) && !showBgGalery">
         <span class="input-title">Текст</span>
-        <input @input="setTxtBoxSize" class="border" name="" type="text" id="innerText"
-               v-model="tmpLayer.content" :style="{fontFamily: this.tmpLayer.fontFamily}">
-        <span class="input-title">Шрифт</span>
+        <textarea  rows="2" @input="setTxtBoxSize" class="inner-text" type="text"
+                  v-model="tmpLayer.content" :style="{fontFamily: this.tmpLayer.fontFamily}"></textarea>
+        <div v-if="tmpLayer.lineCount > 1">
+          <span class="input-title" style="margin-bottom: -2em">Межстрочный интервал</span>
+          <div class="range-out">
+            <div class="scale">
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+            </div>
+            <input @input="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.lineHeight" min="0"
+                   max="100">
+          </div>
+          <input @input="setTxtBoxSize" type="text" class="in-data" v-model="tmpLayer.lineHeight">
+        </div>
+        <span class="input-title" style="">Шрифт</span>
         <select @change="setTxtBoxSize" id="font" class="border" v-model="tmpLayer.fontFamily">
           <option style="font-family: Arial" value="Arial" selected>Arial</option>
           <option style="font-family: comic sans ms" value="comic sans ms">Comic Sans MS</option>
           <option style="font-family: segoe script" value="segoe script">Segoe Script</option>
         </select>
-        <span @change="setTxtBoxSize" class="input-title">Размер шрифта</span>
-        <input id="fontSize" type="number" min="1" max="600"
-               v-model="tmpLayer.fontSize">
+        <span @change="setTxtBoxSize" class="input-title" style="margin-bottom: -2em">Размер шрифта</span>
         <div class="range-out">
           <div class="scale">
             <div>|</div>
@@ -161,11 +181,12 @@
             <div>|</div>
             <div>|</div>
           </div>
-          <input @change="setTxtBoxSize" class="rotate-range" type="range" v-model="tmpLayer.fontSize" min="0"
+          <input @change="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.fontSize" min="0"
                  max="600">
         </div>
-        <span class="input-title">Межсимвольный интервал</span>
-        <input @change="setTxtBoxSize" type="number" min="0" max="100" v-model="tmpLayer.interval">
+        <input class="in-data" id="fontSize" type="text" min="1" max="600"
+               v-model="tmpLayer.fontSize">
+        <span class="input-title" style="margin-bottom: -2em;margin-top: -1em">Межсимвольный интервал</span>
         <div class="range-out">
           <div class="scale">
             <div>|</div>
@@ -180,10 +201,11 @@
             <div>|</div>
             <div>|</div>
           </div>
-          <input @change="setTxtBoxSize" class="rotate-range" type="range" v-model="tmpLayer.interval" min="0"
+          <input @change="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.interval" min="0"
                  max="100">
         </div>
-        <span class="input-title">Цвет текста</span>
+        <input @change="setTxtBoxSize" type="text" class="in-data" min="0" max="100" v-model="tmpLayer.interval">
+        <span class="input-title" style="margin-top: -1em">Цвет текста</span>
         <!--        <input type="color" v-model="tmpLayer.color" >-->
         <div class="clr-field" :style="{color: tmpLayer.color}">
           <button aria-labelledby="clr-open-label" class="color-btn"></button>
@@ -224,10 +246,10 @@
                    v-model="this.tmpLayer.percentY">
           </div>
         </div>
-        <span class="input-title">Координаты</span>
+        <span class="input-title" style="margin-bottom: -2em">Координаты</span>
         <div class="d-flex flex-column">
           <div>
-            X <input type="number" v-model="this.layers[this.tmpLayer.id].x">
+            X
             <div class="range-out">
               <div class="scale">
                 <div>|</div>
@@ -242,12 +264,12 @@
                 <div>|</div>
                 <div>|</div>
               </div>
-              <input class="rotate-range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
+              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
             </div>
+            <input type="text" class="in-data" v-model="this.layers[this.tmpLayer.id].x">
           </div>
-          <br>
-          <div>
-            Y <input type="number" v-model="this.layers[this.tmpLayer.id].y">
+          <div style="margin-top: -2em">
+            Y
             <div class="range-out">
               <div class="scale">
                 <div>|</div>
@@ -262,13 +284,12 @@
                 <div>|</div>
                 <div>|</div>
               </div>
-              <input class="rotate-range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
+              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
             </div>
+            <input type="text" class="in-data" v-model="this.layers[this.tmpLayer.id].y">
           </div>
         </div>
-        <br>
-        <span class="input-title inline">Поворот </span><input type="number" v-model="tmpLayer.rotate" min="-180"
-                                                               max="180">
+        <span class="input-title" style="margin: -1em 0 -2em 0">Поворот </span>
         <div class="range-out">
           <div class="scale">
             <div>|</div>
@@ -283,9 +304,10 @@
             <div>|</div>
             <div>|</div>
           </div>
-          <input class="rotate-range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
+          <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
         </div>
-        <span class="input-title">Выравнивание</span>
+        <input type="text" class="in-data" v-model="tmpLayer.rotate" min="-180" max="180">
+        <span class="input-title" style="margin-top: -1em">Выравнивание</span>
         <button class="btn align-btn" type="button" @click="setHorisontalAlign">центр по горизонтали</button>
         <br>
         <button class="btn align-btn" type="button" @click="setVerticalAlign">центр по вертикали</button>
@@ -327,7 +349,7 @@
                 <div>|</div>
                 <div>|</div>
               </div>
-              <input class="rotate-range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
+              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
             </div>
           </div>
           <br>
@@ -347,7 +369,7 @@
                 <div>|</div>
                 <div>|</div>
               </div>
-              <input class="rotate-range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
+              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
             </div>
           </div>
         </div>
@@ -370,7 +392,7 @@
             <div>|</div>
             <div>|</div>
           </div>
-          <input class="rotate-range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
+          <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
         </div>
         <br>
         <span class="input-title">Выравнивание</span>
@@ -382,6 +404,7 @@
         <button @click="resetTransform(tmpLayer.id)" type="button" class="btn btn-warning">сбросить все</button>
       </div>
     </div>
+    </div>
   </div>
 </template>
 <script>
@@ -392,6 +415,7 @@ const maxImgWidth = 360;
 const maxImgSize = 4; // в мегабайтах
 const containerW = 400; // в пикселях
 const containerH = 773;
+
 // доставание cookie
 function readCookie(name) {
   const matches = document.cookie.match(new RegExp(
@@ -431,7 +455,6 @@ if (bgArr) {
     }
   ]
 }
-
 import {defineComponent} from "vue";
 import Moveable from "vue3-moveable";
 import html2canvas from "@/assets/js/html2canvas";
@@ -448,6 +471,8 @@ export default defineComponent({
       defaultText: 'ваш текст',
       defaultColor: '#0000ff',
       defaultFontSize: 24,
+      defaultLineHeight: 24,
+      // lineCount: 1,
       defaultFontFamily: 'Arial',
       defaultTextWidth: 0,
       defaultTextHeight: 0,
@@ -478,6 +503,8 @@ export default defineComponent({
         fontFamily: 'Arial',
         fontSize: this.defaultFontSize,
         interval: 0,
+        lineHeight: this.defaultLineHeight,
+        lineCount: 1,
         color: this.defaultColor,
         rotate: '',
         isActive: true,
@@ -574,6 +601,8 @@ export default defineComponent({
       this.tmpLayer.fontFamily = this.layers[index].fontFamily;
       this.tmpLayer.fontSize = this.layers[index].fontSize;
       this.tmpLayer.interval = this.layers[index].interval;
+      this.tmpLayer.lineHeight = this.layers[index].lineHeight;
+      this.tmpLayer.lineCount = this.layers[index].lineCount;
       this.tmpLayer.color = this.layers[index].color;
       this.tmpLayer.rotate = this.layers[index].rotate;
       //
@@ -797,14 +826,35 @@ export default defineComponent({
     },
     setTxtBoxSize() { // устанавливаем размеры txt блока
       let text = this.tmpLayer.content;
+      let pos = 0;
+      let lineCount = 1;
+      while (true) { // ищем количество переводов строк в тексте
+        let foundPos = text.indexOf('\n', pos);
+        if (foundPos == -1) break;
+        pos = foundPos + 1; // продолжаем со следующей позиции
+        lineCount += 1;
+      }
+      this.tmpLayer.lineCount = lineCount;
+      let arr = [];
+      let maxStr = '';
+      if(lineCount > 1){ // многострочный текст
+        arr = text.split('\n');
+        arr.forEach((item) => { // находим самую длинную строку в многострочном тексте
+          if(item.length > maxStr.length){
+            maxStr = item;
+          }
+        });
+       text = maxStr;
+      }
       let el = document.createElement('span');
       el.style.fontSize = this.tmpLayer.fontSize + 'px';
       el.style.fontFamily = this.tmpLayer.fontFamily;
       el.style.letterSpacing = this.tmpLayer.interval + 'px';
+      el.style.lineHeight = this.tmpLayer.lineHeight + 'px';
       el.innerHTML = text;
       document.body.appendChild(el);
       let w = el.offsetWidth;
-      let h = el.offsetHeight;
+      let h = el.offsetHeight * this.tmpLayer.lineCount; // помножим на количество строк
       document.body.removeChild(el);
       this.tmpLayer.w = w;
       this.layers[this.tmpLayer.id].w = w;
@@ -836,8 +886,8 @@ export default defineComponent({
         fileName: '',
         content: this.defaultText,
         src: '',
-        x: 0,
-        y: 0,
+        x: 40,
+        y: 40,
         scaleX: 1,
         scaleY: 1,
         w: this.defaultTextWidth,
@@ -846,6 +896,7 @@ export default defineComponent({
         fontSize: this.defaultFontSize,
         color: this.defaultColor,
         interval: 0,
+        lineHeight: this.defaultLineHeight,
         rotate: 0,
         isActive: true,
         shadowX: 0,
@@ -874,6 +925,7 @@ export default defineComponent({
         alert('Превышен размер файла (не более ' + maxImgSize + ' мегабайт)');
         return;
       }
+
       //
       async function f() {
         let reader = new FileReader();
@@ -888,11 +940,13 @@ export default defineComponent({
           alert(reader.error);
         };
       }
+
       //
       f();
     },
     insertImg() {
       let id = this.layers.length ? this.layers.length : 0;
+
       //
       async function f() {
         // финт ушами чтобы узнать реальный размер Base64 изображения
@@ -923,6 +977,7 @@ export default defineComponent({
           document.getElementById('push').click(); // идем к методу pushImg()
         }
       }
+
       //
       f();
     },
@@ -1095,7 +1150,7 @@ export default defineComponent({
     здесь меняем не фоновую картинку а попиксельно меняем один цвет на другой!!
     */
     changeBgColor() {
-      if(this.bgColorChanged > 1){ // первый раз при mount overlay не убираем
+      if (this.bgColorChanged > 1) { // первый раз при mount overlay не убираем
         this.showAlert = false;
       }
       this.bgColorChanged += 1;
@@ -1143,7 +1198,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    if(this.layers.length && !this.tmpLayer.inUse){
+    if (this.layers.length && !this.tmpLayer.inUse) {
       this.showAlert = true;
     }
     // достаем сохраненные данные
@@ -1155,9 +1210,9 @@ export default defineComponent({
         this.bgColorChanged += 1;
         this.bgColor = bgColor;
       }
-    }else{
+    } else {
       let bgIndex = localStorage.getItem('bgIndex');
-      if(bgIndex){ // есть сохранненый вариант фона из предложенных
+      if (bgIndex) { // есть сохранненый вариант фона из предложенных
         this.changeBg(bgIndex, localStorage.getItem('bgFileName'))
       }
     }
@@ -1213,6 +1268,7 @@ export default defineComponent({
           this.layers[updatedList.id].fontSize = updatedList.fontSize;
           this.layers[updatedList.id].fontFamily = updatedList.fontFamily;
           this.layers[updatedList.id].interval = updatedList.interval;
+          this.layers[updatedList.id].lineHeight = updatedList.lineHeight;
           this.layers[updatedList.id].color = updatedList.color;
           this.layers[updatedList.id].rotate = updatedList.rotate;
           //
