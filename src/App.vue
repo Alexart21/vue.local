@@ -65,7 +65,7 @@
           <!--     текст     -->
           <div v-if="layer.type === 'txt'">
             <div :id="index" class="contenteditable" :class="layer.class"
-                 :style="{transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', fontFamily: layer.fontFamily, color: layer.color, fontSize: layer.fontSize + 'px', letterSpacing: layer.interval + 'px', visibility: layer.visibility, zIndex: layer.zIndex, textShadow: layer.shadowX + 'px ' + layer.shadowY + 'px ' + layer.shadowR + 'px ' + layer.shadowColor, lineHeight: layer.lineHeight + 'px'}">
+                 :style="{transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', fontFamily: layer.fontFamily, color: layer.color, fontSize: layer.fontSize + 'px', letterSpacing: layer.interval + 'px', visibility: layer.visibility, zIndex: layer.zIndex, textShadow: layer.shadowX + 'px ' + layer.shadowY + 'px ' + layer.shadowR + 'px ' + layer.shadowColor, lineHeight: layer.lineHeight + 'px', textAlign: layer.textAlign}">
               {{ layer.content }}
             </div>
             <moveable
@@ -139,6 +139,11 @@
         <span class="input-title">Текст</span>
         <textarea  rows="2" @input="setTxtBoxSize" class="inner-text" type="text"
                   v-model="tmpLayer.content" :style="{fontFamily: this.tmpLayer.fontFamily}"></textarea>
+        <div v-if="tmpLayer.lineCount > 1" class="d-inline-flex">
+          <div @click="setTextAlign('left')" class="align-icon align-left" :class="{iconActive: tmpLayer.textAlign === 'left'}"></div>
+          <div @click="setTextAlign('center')" class="align-icon align-center" :class="{iconActive: tmpLayer.textAlign === 'center'}"></div>
+          <div @click="setTextAlign('right')" class="align-icon align-right" :class="{iconActive: tmpLayer.textAlign === 'right'}"></div>
+        </div>
         <div v-if="tmpLayer.lineCount > 1">
           <span class="input-title" style="margin-bottom: -2em">Межстрочный интервал</span>
           <div class="range-out">
@@ -159,6 +164,7 @@
                    max="100">
           </div>
           <input @input="setTxtBoxSize" type="text" class="in-data" v-model="tmpLayer.lineHeight">
+<!--          <div style="margin-top: -1em">выровнять по центру <input @change="setTextAlign" type="checkbox" v-model="alignCenter" /></div>-->
         </div>
         <span class="input-title" style="">Шрифт</span>
         <select @change="setTxtBoxSize" id="font" class="border" v-model="tmpLayer.fontFamily">
@@ -166,7 +172,7 @@
           <option style="font-family: comic sans ms" value="comic sans ms">Comic Sans MS</option>
           <option style="font-family: segoe script" value="segoe script">Segoe Script</option>
         </select>
-        <span @change="setTxtBoxSize" class="input-title" style="margin-bottom: -2em">Размер шрифта</span>
+        <span @input="setTxtBoxSize" class="input-title" style="margin-bottom: -2em">Размер шрифта</span>
         <div class="range-out">
           <div class="scale">
             <div>|</div>
@@ -181,7 +187,7 @@
             <div>|</div>
             <div>|</div>
           </div>
-          <input @change="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.fontSize" min="0"
+          <input @input="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.fontSize" min="0"
                  max="600">
         </div>
         <input class="in-data" id="fontSize" type="text" min="1" max="600"
@@ -415,6 +421,7 @@ const maxImgWidth = 360;
 const maxImgSize = 4; // в мегабайтах
 const containerW = 400; // в пикселях
 const containerH = 773;
+const fontSize = 24;
 
 // доставание cookie
 function readCookie(name) {
@@ -470,9 +477,9 @@ export default defineComponent({
       parentHeight: containerH,
       defaultText: 'ваш текст',
       defaultColor: '#0000ff',
-      defaultFontSize: 24,
-      defaultLineHeight: 24,
-      // lineCount: 1,
+      defaultFontSize: fontSize, // 24
+      defaultLineHeight: this.defaultFontSize,
+      defaultTextAlign: 'left',
       defaultFontFamily: 'Arial',
       defaultTextWidth: 0,
       defaultTextHeight: 0,
@@ -504,6 +511,7 @@ export default defineComponent({
         fontSize: this.defaultFontSize,
         interval: 0,
         lineHeight: this.defaultLineHeight,
+        textAlign: 'left',
         lineCount: 1,
         color: this.defaultColor,
         rotate: '',
@@ -602,6 +610,7 @@ export default defineComponent({
       this.tmpLayer.fontSize = this.layers[index].fontSize;
       this.tmpLayer.interval = this.layers[index].interval;
       this.tmpLayer.lineHeight = this.layers[index].lineHeight;
+      this.tmpLayer.textAlign = this.layers[index].textAlign;
       this.tmpLayer.lineCount = this.layers[index].lineCount;
       this.tmpLayer.color = this.layers[index].color;
       this.tmpLayer.rotate = this.layers[index].rotate;
@@ -612,6 +621,8 @@ export default defineComponent({
       this.tmpLayer.shadowColor = this.layers[index].shadowColor;
       this.layers[index].isActive = true;
       this.tmpLayer.inUse = true;
+      //
+      this.alignCenter = (this.tmpLayer.textAlign === 'center') ? true : false;
     },
     toggleViz(index) { // переключение видимости слоя
       let elem = document.getElementById(String(index));
@@ -897,6 +908,8 @@ export default defineComponent({
         color: this.defaultColor,
         interval: 0,
         lineHeight: this.defaultLineHeight,
+        lineCount: 1,
+        textAlign: 'left',
         rotate: 0,
         isActive: true,
         shadowX: 0,
@@ -1196,6 +1209,9 @@ export default defineComponent({
     setVerticalAlign() { // выравнивание слоя по вертикали
       this.layers[this.tmpLayer.id].y = (this.parentHeight - this.layers[this.tmpLayer.id].h) / 2;
     },
+    setTextAlign(align){
+        this.tmpLayer.textAlign = align;
+    }
   },
   mounted() {
     if (this.layers.length && !this.tmpLayer.inUse) {
@@ -1269,6 +1285,8 @@ export default defineComponent({
           this.layers[updatedList.id].fontFamily = updatedList.fontFamily;
           this.layers[updatedList.id].interval = updatedList.interval;
           this.layers[updatedList.id].lineHeight = updatedList.lineHeight;
+          this.layers[updatedList.id].lineCount = updatedList.lineCount;
+          this.layers[updatedList.id].textAlign = updatedList.textAlign;
           this.layers[updatedList.id].color = updatedList.color;
           this.layers[updatedList.id].rotate = updatedList.rotate;
           //
@@ -1286,7 +1304,6 @@ export default defineComponent({
     bgColor: {
       handler() {
         this.changeBgColor();
-        // this.showAlert = false;
       }
     },
   },
