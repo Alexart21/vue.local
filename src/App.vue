@@ -221,10 +221,10 @@
         <br>
         <span class="input-title inline">Тень</span>&nbsp;&nbsp;
         <!--        -->
-        <input type="checkbox" @change="txtShadow" :checked="setShadow" v-model="setShadow"/>
+        <input type="checkbox" @change="toggleShadow" v-model="tmpLayer.isShadow" />
         <br>
         <!--        -->
-        <div v-if="setShadow">
+        <div v-if="tmpLayer.isShadow">
           <span class="input-title inline">X </span>
           &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowX">&nbsp;
           <span class="input-title inline">Y </span>
@@ -486,7 +486,6 @@ export default defineComponent({
       defaultBg: 'black.png',
       bgArr: bgArr,
       showBgGalery: true,
-      setShadow: false,
       bgColor: '',
       bgSrc: '',
       showAlert: false,
@@ -522,6 +521,7 @@ export default defineComponent({
         shadowY: 0,
         shadowR: 0,
         shadowColor: 'transparent',
+        isShadow: false,
         //
         percentX: 100, // трансформация (то же что scaleX) только в процентах
         percentY: 100,
@@ -570,11 +570,6 @@ export default defineComponent({
       this.hideProgress();
       this.clearActive();
       this.showAlert = false;
-      if (this.layers[index].shadowColor !== 'transparent') {
-        this.setShadow = true;
-      } else {
-        this.setShadow = false;
-      }
       //
       let controls = document.getElementsByClassName('moveable-control-box')
       let i = 0;
@@ -619,6 +614,7 @@ export default defineComponent({
       this.tmpLayer.shadowY = this.layers[index].shadowY;
       this.tmpLayer.shadowR = this.layers[index].shadowR;
       this.tmpLayer.shadowColor = this.layers[index].shadowColor;
+      this.tmpLayer.isShadow = this.layers[index].type === 'txt' && this.layers[index].shadowColor !== 'transparent';
       this.layers[index].isActive = true;
       this.tmpLayer.inUse = true;
       //
@@ -916,10 +912,23 @@ export default defineComponent({
         shadowY: 0,
         shadowR: 0,
         shadowColor: 'transparent',
+        isShadow: false,
       });
       this.clearActive();
       this.setActive(id);
       this.save();
+    },
+    toggleShadow(){
+      this.tmpLayer.isShadow = !this.tmpLayer.isShadow;
+      if(this.tmpLayer.isShadow){
+        this.tmpLayer.isShadow = false;
+        this.tmpLayer.shadowX = 0;
+        this.tmpLayer.shadowY = 0;
+        this.tmpLayer.shadowR = 0;
+        this.tmpLayer.shadowColor = 'transparent';
+      }else{
+        this.tmpLayer.isShadow = true;
+      }
     },
     addImg() { // добавление изображения
       this.hideProgress();
@@ -1179,11 +1188,12 @@ export default defineComponent({
         let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(this.bgColor);
         // здесь rgb вида [255,0,0]
         let color = result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null;
+        // заранее подготовленная картинка с красныч фоном
         let img = document.getElementById('red'); // в этой картинке заменяем красный цвет[255,0,0] на нужный
         let canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
-        var ctx = canvas.getContext("2d");
+        let ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
         let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         let data = imgData.data;
@@ -1233,8 +1243,6 @@ export default defineComponent({
       }
     }
     this.init();
-    // document.getElementById('main-overlay').style.display = 'none';
-    // document.getElementById('loader').style.display = 'none';
   },
   computed: {
     getBgSrc() {
@@ -1294,8 +1302,9 @@ export default defineComponent({
           this.layers[updatedList.id].shadowY = updatedList.shadowY;
           this.layers[updatedList.id].shadowR = updatedList.shadowR;
           this.layers[updatedList.id].shadowColor = updatedList.shadowColor;
+          this.layers[updatedList.id].isShadow = updatedList.isShadow;
           this.layers[updatedList.id].textAlign = updatedList.textAlign;
-          this.save();
+          // this.save();
         }
 
       },

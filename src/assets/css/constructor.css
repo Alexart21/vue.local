@@ -381,6 +381,12 @@ input[type=number]{
   display: inline;
 }
 /* coloris */
+.coloris{
+  width: 7em;
+  border: 1px solid #ddd;
+  padding: 0 .5em;
+}
+
 .clr-picker {
     display: none;
     flex-wrap: wrap;
