@@ -64,7 +64,7 @@
         <div v-if="layers.length" v-for="(layer, index) in layers" :key="index">
           <!--     текст     -->
           <div v-if="layer.type === 'txt'">
-            <div :id="index" class="contenteditable" :class="layer.class"
+            <div :id="index" class="contenteditable" :class="[layer.class, noBorder ? '' : 'brd']"
                  :style="{transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', fontFamily: layer.fontFamily, color: layer.color, fontSize: layer.fontSize + 'px', letterSpacing: layer.interval + 'px', visibility: layer.visibility, zIndex: layer.zIndex, textShadow: layer.shadowX + 'px ' + layer.shadowY + 'px ' + layer.shadowR + 'px ' + layer.shadowColor, lineHeight: layer.lineHeight + 'px', textAlign: layer.textAlign}">
               {{ layer.content }}
             </div>
@@ -85,7 +85,7 @@
           </div>
           <!--     картинка     -->
           <div v-else>
-            <div :id="index" class="imgL" :class="layer.class"
+            <div :id="index" class="imgL" :class="[layer.class, noBorder ? '' : 'brd']"
                  :style="{backgroundImage: 'url(' + layer.src + ')', width: layer.w + 'px', height: layer.h + 'px', transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', visibility: layer.visibility, zIndex: layer.zIndex}">
             </div>
             <moveable
@@ -414,15 +414,7 @@
   </div>
 </template>
 <script>
-let tmpW, tmpH, tmpSrc, tmpBg, tmpBgFileName, tmpFileName;
-//
-const maxImgWidth = 360;
-// const maxImgSize = 4; // объявил в views/layout/constructor.php !
-const maxImgSize = 4; // в мегабайтах
-const containerW = 400; // в пикселях
-const containerH = 773;
-const fontSize = 24;
-
+let tmpW, tmpH, tmpSrc, tmpBg, tmpFileName;
 // доставание cookie
 function readCookie(name) {
   const matches = document.cookie.match(new RegExp(
@@ -465,7 +457,7 @@ if (bgArr) {
 import {defineComponent} from "vue";
 import Moveable from "vue3-moveable";
 import html2canvas from "@/assets/js/html2canvas";
-
+import {settings} from "@/_config";
 
 export default defineComponent({
   components: {
@@ -473,11 +465,11 @@ export default defineComponent({
   },
   data() {
     return {
-      parentWidth: containerW,
-      parentHeight: containerH,
+      parentWidth: settings.containerW, // 400
+      parentHeight: settings.containerH, // 773
       defaultText: 'ваш текст',
       defaultColor: '#0000ff',
-      defaultFontSize: fontSize, // 24
+      defaultFontSize: settings.fontSize, // 24
       defaultLineHeight: this.defaultFontSize,
       defaultTextAlign: 'left',
       defaultFontFamily: 'Arial',
@@ -490,6 +482,7 @@ export default defineComponent({
       bgSrc: '',
       showAlert: false,
       bgColorChanged: 0,
+      noBorder: false,
       //
       tmpLayer: { // сюда копируються данные активного слоя для редактирования
         id: '',
@@ -539,11 +532,13 @@ export default defineComponent({
     onDrag(e) {
       try {
         let index = e.inputEvent.target.id;
-        this.layers[index].x = e.translate[0];
-        this.layers[index].y = e.translate[1];
+        if(this.layers[index].isActive){ // позволяем двигать только активный слой
+          this.layers[index].x = e.translate[0];
+          this.layers[index].y = e.translate[1];
+          e.target.style.transform = e.transform;
+        }
       } catch {
       }
-      e.target.style.transform = e.transform;
     },
     onRotate(e) {
       // let el = e.inputEvent.target;
@@ -567,6 +562,7 @@ export default defineComponent({
     },
     setActive(index) { // делает слой активным. копируем данные слоя во временный слой для редактирования
       this.showBgGalery = false;
+      this.noBorder = false;
       this.hideProgress();
       this.clearActive();
       this.showAlert = false;
@@ -643,6 +639,7 @@ export default defineComponent({
       }
     },
     hideBorder() { // убираем управляющие элементы перед скриншотом
+      this.noBorder = true;
       this.hideControls();
       this.tmpLayer.inUse = false;
       let container = document.getElementById('img-container');
@@ -673,6 +670,7 @@ export default defineComponent({
       // this.showAlert = false;
     },
     exportAll() {
+      this.noBorder = true;
       let container = document.getElementById('img-container'); // скриншот с этого блока
       this.hideControls();// убираем управляющие элементы перед скриншотом
       this.save();
@@ -689,6 +687,7 @@ export default defineComponent({
     },
     send() { // отправка на сервер
       this.hideControls();// убираем управляющие элементы перед скриншотом
+      this.noBorder = true;
       this.startLoader();
       let container = document.getElementById('img-container');
       let progressBlock = document.querySelector('.progress');
@@ -943,8 +942,8 @@ export default defineComponent({
         alert('Недопустимый тип файла! (только PNG)');
         return;
       }
-      if (file.size > maxImgSize * 1024 * 1024) {
-        alert('Превышен размер файла (не более ' + maxImgSize + ' мегабайт)');
+      if (file.size > settings.maxImgSize * 1024 * 1024) {
+        alert('Превышен размер файла (не более ' + settings.maxImgSize + ' мегабайт)');
         return;
       }
 
@@ -978,15 +977,15 @@ export default defineComponent({
           tmpW = tmpImg.naturalWidth;
           tmpH = tmpImg.naturalHeight;
           //
-          if (tmpW > maxImgWidth) { // превышает допустимый размер - уменьшаем
+          if (tmpW > settings.maxImgWidth) { // превышает допустимый размер - уменьшаем
             let ratio = tmpW / tmpH;
             let canvas = document.createElement('canvas');
-            canvas.width = maxImgWidth;
-            let height = Math.floor(maxImgWidth / ratio);
+            canvas.width = settings.maxImgWidth;
+            let height = Math.floor(settings.maxImgWidth / ratio);
             canvas.height = height;
             var ctx = canvas.getContext("2d");
-            ctx.drawImage(this, 0, 0, maxImgWidth, height);
-            tmpW = maxImgWidth;
+            ctx.drawImage(this, 0, 0, settings.maxImgWidth, height);
+            tmpW = settings.maxImgWidth;
             tmpH = height;
             canvas.toBlob(function (blob) {
               let reader = new FileReader();
@@ -1305,6 +1304,14 @@ export default defineComponent({
           this.layers[updatedList.id].isShadow = updatedList.isShadow;
           this.layers[updatedList.id].textAlign = updatedList.textAlign;
           // this.save();
+          /*let el = document.getElementById(updatedList.id);
+          if(el){
+            console.log('here');
+            el.click();
+            el.nextElementSibling.click();
+            el.focus();
+            el.nextElementSibling.focus();
+          }*/
         }
 
       },
