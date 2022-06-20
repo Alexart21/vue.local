@@ -20,8 +20,9 @@
       <div v-if="layers.length" v-for="(layer, index) in layers" :key="index">
         <div v-if="layer.type == 'txt'" class="btn btn-light layer"
              :class="{ activeLayer: layer.isActive }">
-              <span @click="toggleViz(index)" class="eye"
-                    :class="{ icon_hidden: layer.visibility === 'hidden'  }"></span>
+          <div class="layer-num">слой{{ index }}</div>
+          <span @click="toggleViz(index)" class="eye"
+                :class="{ icon_hidden: layer.visibility === 'hidden'  }"></span>
           <div class="txt-layer-icon"></div>
           <div :id="'ltab' + String(index)" class="layer-tab-text" @click="setActive(index)"
                :style="{fontFamily: layer.fontFamily, color: layer.color}">
@@ -31,6 +32,7 @@
         </div>
         <div v-else="layer.type == 'img'" class="btn btn-light layer"
              :class="{ activeLayer: layer.isActive }">
+          <div class="layer-num">слой{{ index }}</div>
           <span @click="toggleViz(index)" class="eye" :class="{ icon_hidden: layer.visibility === 'hidden'  }"></span>
           <div class="img-layer-icon" :style="{backgroundImage: 'url(' + layer.src + ')'}"></div>
           <div :id="'ltab' + String(index)" class="layer-tab-text" @click="setActive(index)"
@@ -108,44 +110,90 @@
         <h1 v-if="showAlert" id="layers-over">выберите слой</h1>
       </div>
       <!--    -->
+      <div id="loader" v-if="loader">
+        <svg version="1.1" id="L2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+             y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
+<circle fill="none" stroke="#ff0000" stroke-width="4" stroke-miterlimit="10" cx="50" cy="50" r="48"></circle>
+          <line fill="none" stroke-linecap="round" stroke="#ff0000" stroke-width="4" stroke-miterlimit="10" x1="50"
+                y1="50" x2="85" y2="50.5">
+  <animateTransform attributeName="transform" dur="2s" type="rotate" from="0 50 50" to="360 50 50"
+                    repeatCount="indefinite"></animateTransform>
+</line>
+          <line fill="none" stroke-linecap="round" stroke="#ff0000" stroke-width="4" stroke-miterlimit="10" x1="50"
+                y1="50" x2="49.5" y2="74">
+  <animateTransform attributeName="transform" dur="15s" type="rotate" from="0 50 50" to="360 50 50"
+                    repeatCount="indefinite"></animateTransform>
+</line>
+</svg>
+      </div>
     </div>
     <div class="right">
       <div class="right-inner">
-      <button v-if="!showBgGalery" @click="showBgList" class="btn btn-secondary">Выбор фона</button>
-      <!--      <button @click="loadBg" type="button" class="btn btn-secondary" style="margin-left: 1em">загрузить свой фон
-            </button>-->
-      <div v-if="showBgGalery">
-        <div class="bg-galery d-flex">
-          <div @click="changeBg(index, bg.fullName)" v-for="(bg, index) in bgArr" :class="{activeBg: bg.isActive}"
-               class="d-flex flex-column bg-galery-parent">
-            <div class="bg-galery-item"
-                 :style="{backgroundImage: 'url(' + require('@/assets/img/' + bg.fullName +  '') + ')'}" :key="index">
+        <button v-if="!showBgGalery" @click="showBgList" class="btn btn-secondary">Выбор фона</button>
+        <!--      <button @click="loadBg" type="button" class="btn btn-secondary" style="margin-left: 1em">загрузить свой фон
+              </button>-->
+        <div v-if="showBgGalery">
+          <div class="bg-galery d-flex">
+            <div @click="changeBg(index, bg.fullName)" v-for="(bg, index) in bgArr" :class="{activeBg: bg.isActive}"
+                 class="d-flex flex-column bg-galery-parent">
+              <div class="bg-galery-item"
+                   :style="{backgroundImage: 'url(' + require('@/assets/img/' + bg.fullName +  '') + ')'}" :key="index">
+              </div>
+              <div class="bg-title">{{ bg.name }}</div>
             </div>
-            <div class="bg-title">{{ bg.name }}</div>
+            <!--     фейковая картинка     -->
+            <img id="red" :src="require('@/assets/img/red.png')" alt="" style="display: none">
+            <!--          -->
+            <br>
           </div>
-          <!--     фейковая картинка     -->
-          <img id="red" :src="require('@/assets/img/red.png')" alt="" style="display: none">
-          <!--          -->
-          <br>
+          <h4>Задать свой цвет</h4>
+          <div class="clr-field" :style="{color: bgColor}">
+            <button class="color-btn" aria-labelledby="clr-open-label"></button>
+            <!--     плагин цвета инициализирован в public/index.html     -->
+            <input @change="changeBgColor" v-model="bgColor" type="text" class="coloris">
+          </div>
         </div>
-        <h4>Задать свой цвет</h4>
-        <div class="clr-field" :style="{color: bgColor}">
-          <button class="color-btn" aria-labelledby="clr-open-label"></button>
-          <!--     плагин цвета инициализирован в public/index.html     -->
-          <input @change="changeBgColor" v-model="bgColor" type="text" class="coloris">
-        </div>
-      </div>
-      <div v-if="(tmpLayer.type == 'txt' && tmpLayer.inUse) && !showBgGalery">
-        <span class="input-title">Текст</span>
-        <textarea  rows="2" @input="setTxtBoxSize" class="inner-text" type="text"
-                  v-model="tmpLayer.content" :style="{fontFamily: this.tmpLayer.fontFamily}"></textarea>
-        <div v-if="tmpLayer.lineCount > 1" class="d-inline-flex">
-          <div @click="setTextAlign('left')" class="align-icon align-left" :class="{iconActive: tmpLayer.textAlign === 'left'}"></div>
-          <div @click="setTextAlign('center')" class="align-icon align-center" :class="{iconActive: tmpLayer.textAlign === 'center'}"></div>
-          <div @click="setTextAlign('right')" class="align-icon align-right" :class="{iconActive: tmpLayer.textAlign === 'right'}"></div>
-        </div>
-        <div v-if="tmpLayer.lineCount > 1">
-          <span class="input-title" style="margin-bottom: -2em">Межстрочный интервал</span>
+        <div v-if="(tmpLayer.type == 'txt' && tmpLayer.inUse) && !showBgGalery">
+          <span class="input-title">Текст</span>
+          <textarea rows="2" @input="setTxtBoxSize" class="inner-text" type="text"
+                    v-model="tmpLayer.content" :style="{fontFamily: this.tmpLayer.fontFamily}"></textarea>
+          <div v-if="tmpLayer.lineCount > 1" class="d-inline-flex">
+            <div @click="setTextAlign('left')" class="align-icon align-left"
+                 :class="{iconActive: tmpLayer.textAlign === 'left'}"></div>
+            <div @click="setTextAlign('center')" class="align-icon align-center"
+                 :class="{iconActive: tmpLayer.textAlign === 'center'}"></div>
+            <div @click="setTextAlign('right')" class="align-icon align-right"
+                 :class="{iconActive: tmpLayer.textAlign === 'right'}"></div>
+          </div>
+          <div v-if="tmpLayer.lineCount > 1">
+            <span class="input-title" style="margin-bottom: -2em">Межстрочный интервал</span>
+            <div class="range-out">
+              <div class="scale">
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+                <div>|</div>
+              </div>
+              <input @input="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.lineHeight" min="0"
+                     max="100">
+            </div>
+            <input @input="setTxtBoxSize" type="text" class="in-data" v-model="tmpLayer.lineHeight">
+            <!--          <div style="margin-top: -1em">выровнять по центру <input @change="setTextAlign" type="checkbox" v-model="alignCenter" /></div>-->
+          </div>
+          <span class="input-title" style="">Шрифт</span>
+          <select @change="setTxtBoxSize" id="font" class="border" v-model="tmpLayer.fontFamily">
+            <option style="font-family: Arial" value="Arial" selected>Arial</option>
+            <option style="font-family: comic sans ms" value="comic sans ms">Comic Sans MS</option>
+            <option style="font-family: segoe script" value="segoe script">Segoe Script</option>
+          </select>
+          <span @input="setTxtBoxSize" class="input-title" style="margin-bottom: -2em">Размер шрифта</span>
           <div class="range-out">
             <div class="scale">
               <div>|</div>
@@ -160,261 +208,235 @@
               <div>|</div>
               <div>|</div>
             </div>
-            <input @input="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.lineHeight" min="0"
+            <input @input="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.fontSize" min="0"
+                   max="600">
+          </div>
+          <input class="in-data" id="fontSize" type="text" min="1" max="600"
+                 v-model="tmpLayer.fontSize">
+          <span class="input-title" style="margin-bottom: -2em;margin-top: -1em">Межсимвольный интервал</span>
+          <div class="range-out">
+            <div class="scale">
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+            </div>
+            <input @change="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.interval" min="0"
                    max="100">
           </div>
-          <input @input="setTxtBoxSize" type="text" class="in-data" v-model="tmpLayer.lineHeight">
-<!--          <div style="margin-top: -1em">выровнять по центру <input @change="setTextAlign" type="checkbox" v-model="alignCenter" /></div>-->
-        </div>
-        <span class="input-title" style="">Шрифт</span>
-        <select @change="setTxtBoxSize" id="font" class="border" v-model="tmpLayer.fontFamily">
-          <option style="font-family: Arial" value="Arial" selected>Arial</option>
-          <option style="font-family: comic sans ms" value="comic sans ms">Comic Sans MS</option>
-          <option style="font-family: segoe script" value="segoe script">Segoe Script</option>
-        </select>
-        <span @input="setTxtBoxSize" class="input-title" style="margin-bottom: -2em">Размер шрифта</span>
-        <div class="range-out">
-          <div class="scale">
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-          </div>
-          <input @input="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.fontSize" min="0"
-                 max="600">
-        </div>
-        <input class="in-data" id="fontSize" type="text" min="1" max="600"
-               v-model="tmpLayer.fontSize">
-        <span class="input-title" style="margin-bottom: -2em;margin-top: -1em">Межсимвольный интервал</span>
-        <div class="range-out">
-          <div class="scale">
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-          </div>
-          <input @change="setTxtBoxSize" class="range" type="range" v-model="tmpLayer.interval" min="0"
-                 max="100">
-        </div>
-        <input @change="setTxtBoxSize" type="text" class="in-data" min="0" max="100" v-model="tmpLayer.interval">
-        <span class="input-title" style="margin-top: -1em">Цвет текста</span>
-        <!--        <input type="color" v-model="tmpLayer.color" >-->
-        <div class="clr-field" :style="{color: tmpLayer.color}">
-          <button aria-labelledby="clr-open-label" class="color-btn"></button>
-          <!--     плагин цвета инициализирован в public/index.html     -->
-          <input v-model="tmpLayer.color" type="text" class="coloris">
-        </div>
-        <br>
-        <span class="input-title inline">Тень</span>&nbsp;&nbsp;
-        <!--        -->
-        <input type="checkbox" @change="toggleShadow" v-model="tmpLayer.isShadow" />
-        <br>
-        <!--        -->
-        <div v-if="tmpLayer.isShadow">
-          <span class="input-title inline">X </span>
-          &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowX">&nbsp;
-          <span class="input-title inline">Y </span>
-          &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowY">&nbsp;
-          <span class="input-title inline">Разброс </span>
-          &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowR">&nbsp;
-          <br>
-          <span class="input-title">Цвет тени</span>
-          <div class="clr-field" :style="{color: tmpLayer.shadowColor}">
+          <input @change="setTxtBoxSize" type="text" class="in-data" min="0" max="100" v-model="tmpLayer.interval">
+          <span class="input-title" style="margin-top: -1em">Цвет текста</span>
+          <!--        <input type="color" v-model="tmpLayer.color" >-->
+          <div class="clr-field" :style="{color: tmpLayer.color}">
             <button aria-labelledby="clr-open-label" class="color-btn"></button>
-            <input v-model="tmpLayer.shadowColor" type="text" class="coloris">
+            <!--     плагин цвета инициализирован в public/index.html     -->
+            <input v-model="tmpLayer.color" type="text" class="coloris">
           </div>
           <br>
-        </div>
-        <span class="input-title">Масштабирование %</span>
-        <div class="d-flex" style="margin-top: -.5em">
-          <div class="d-flex flex-column" style="margin-right: 1em">
-            <span class="input-title">Ширина</span>
-            <input @input="scalePercentX(tmpLayer.id)" min="-1000" max="1000" type="number"
-                   v-model="this.tmpLayer.percentX">
+          <span class="input-title inline">Тень</span>&nbsp;&nbsp;
+          <!--        -->
+          <input type="checkbox" @change="toggleShadow" v-model="tmpLayer.isShadow"/>
+          <br>
+          <!--        -->
+          <div v-if="tmpLayer.isShadow">
+            <span class="input-title inline">X </span>
+            &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowX">&nbsp;
+            <span class="input-title inline">Y </span>
+            &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowY">&nbsp;
+            <span class="input-title inline">Разброс </span>
+            &nbsp;<input type="number" min="0" max="300" v-model="tmpLayer.shadowR">&nbsp;
+            <br>
+            <span class="input-title">Цвет тени</span>
+            <div class="clr-field" :style="{color: tmpLayer.shadowColor}">
+              <button aria-labelledby="clr-open-label" class="color-btn"></button>
+              <input v-model="tmpLayer.shadowColor" type="text" class="coloris">
+            </div>
+            <br>
           </div>
+          <span class="input-title">Масштабирование %</span>
+          <div class="d-flex" style="margin-top: -.5em">
+            <div class="d-flex flex-column" style="margin-right: 1em">
+              <span class="input-title">Ширина</span>
+              <input @input="scalePercentX(tmpLayer.id)" min="-1000" max="1000" type="number"
+                     v-model="this.tmpLayer.percentX">
+            </div>
+            <div class="d-flex flex-column">
+              <span class="input-title">Высота</span>
+              <input @input="scalePercentY(tmpLayer.id)" min="-1000" max="1000" type="number"
+                     v-model="this.tmpLayer.percentY">
+            </div>
+          </div>
+          <span class="input-title" style="margin-bottom: -2em">Координаты</span>
           <div class="d-flex flex-column">
-            <span class="input-title">Высота</span>
-            <input @input="scalePercentY(tmpLayer.id)" min="-1000" max="1000" type="number"
-                   v-model="this.tmpLayer.percentY">
-          </div>
-        </div>
-        <span class="input-title" style="margin-bottom: -2em">Координаты</span>
-        <div class="d-flex flex-column">
-          <div>
-            X
-            <div class="range-out">
-              <div class="scale">
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
+            <div>
+              X
+              <div class="range-out">
+                <div class="scale">
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                </div>
+                <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
               </div>
-              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
+              <input type="text" class="in-data" v-model="this.layers[this.tmpLayer.id].x">
             </div>
-            <input type="text" class="in-data" v-model="this.layers[this.tmpLayer.id].x">
-          </div>
-          <div style="margin-top: -2em">
-            Y
-            <div class="range-out">
-              <div class="scale">
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
+            <div style="margin-top: -2em">
+              Y
+              <div class="range-out">
+                <div class="scale">
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                </div>
+                <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
               </div>
-              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
+              <input type="text" class="in-data" v-model="this.layers[this.tmpLayer.id].y">
             </div>
-            <input type="text" class="in-data" v-model="this.layers[this.tmpLayer.id].y">
           </div>
+          <span class="input-title" style="margin: -1em 0 -2em 0">Поворот </span>
+          <div class="range-out">
+            <div class="scale">
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+            </div>
+            <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
+          </div>
+          <input type="text" class="in-data" v-model="tmpLayer.rotate" min="-180" max="180">
+          <span class="input-title" style="margin-top: -1em">Выравнивание</span>
+          <button class="btn align-btn" type="button" @click="setHorisontalAlign">центр по горизонтали</button>
+          <br>
+          <button class="btn align-btn" type="button" @click="setVerticalAlign">центр по вертикали</button>
+          <br>
+          <br>
+          <button @click="resetTransform(tmpLayer.id)" type="button" class="btn btn-warning">сбросить все</button>
         </div>
-        <span class="input-title" style="margin: -1em 0 -2em 0">Поворот </span>
-        <div class="range-out">
-          <div class="scale">
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
+        <!--  для картинки    -->
+        <div v-else v-if="(tmpLayer.type == 'img' && tmpLayer.inUse) && !showBgGalery">
+          <!--        <div v-if="tmpLayer.inUse && (tmpLayer.scaleX !== 1 || tmpLayer.scaleY !== 1)">-->
+          <span class="input-title" style="margin-bottom: -.5em">Масштабирование %</span>
+          <div class="d-flex">
+            <div class="d-flex flex-column" style="margin-right: 1em">
+              <span class="input-title">Ширина</span>
+              <input @input="scalePercentX(tmpLayer.id)" min="-1000" max="1000" type="number"
+                     v-model="this.tmpLayer.percentX">
+            </div>
+            <div class="d-flex flex-column">
+              <span class="input-title">Высота</span>
+              <input @input="scalePercentY(tmpLayer.id)" min="-1000" max="1000" type="number"
+                     v-model="this.tmpLayer.percentY">
+            </div>
           </div>
-          <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
-        </div>
-        <input type="text" class="in-data" v-model="tmpLayer.rotate" min="-180" max="180">
-        <span class="input-title" style="margin-top: -1em">Выравнивание</span>
-        <button class="btn align-btn" type="button" @click="setHorisontalAlign">центр по горизонтали</button>
-        <br>
-        <button class="btn align-btn" type="button" @click="setVerticalAlign">центр по вертикали</button>
-        <br>
-        <br>
-        <button @click="resetTransform(tmpLayer.id)" type="button" class="btn btn-warning">сбросить все</button>
-      </div>
-      <!--  для картинки    -->
-      <div v-else v-if="(tmpLayer.type == 'img' && tmpLayer.inUse) && !showBgGalery">
-        <!--        <div v-if="tmpLayer.inUse && (tmpLayer.scaleX !== 1 || tmpLayer.scaleY !== 1)">-->
-        <span class="input-title" style="margin-bottom: -.5em">Масштабирование %</span>
-        <div class="d-flex">
-          <div class="d-flex flex-column" style="margin-right: 1em">
-            <span class="input-title">Ширина</span>
-            <input @input="scalePercentX(tmpLayer.id)" min="-1000" max="1000" type="number"
-                   v-model="this.tmpLayer.percentX">
-          </div>
+          <span class="input-title">Координаты</span>
           <div class="d-flex flex-column">
-            <span class="input-title">Высота</span>
-            <input @input="scalePercentY(tmpLayer.id)" min="-1000" max="1000" type="number"
-                   v-model="this.tmpLayer.percentY">
-          </div>
-        </div>
-        <span class="input-title">Координаты</span>
-        <div class="d-flex flex-column">
-          <div>
-            X <input type="number" v-model="this.layers[this.tmpLayer.id].x">
-            <div class="range-out">
-              <div class="scale">
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
+            <div>
+              X <input type="number" v-model="this.layers[this.tmpLayer.id].x">
+              <div class="range-out">
+                <div class="scale">
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                </div>
+                <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
               </div>
-              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].x" min="0" max="400">
             </div>
+            <br>
+            <div>
+              Y <input type="number" v-model="this.layers[this.tmpLayer.id].y">
+              <div class="range-out">
+                <div class="scale">
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                  <div>|</div>
+                </div>
+                <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
+              </div>
+            </div>
+          </div>
+          <!--        </div>-->
+          <br>
+          <!--        <div v-if="tmpLayer.rotate">-->
+          <span class="input-title inline">Поворот </span><input type="number" v-model="tmpLayer.rotate" min="-180"
+                                                                 max="180">
+          <div class="range-out">
+            <div class="scale">
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+              <div>|</div>
+            </div>
+            <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
           </div>
           <br>
-          <div>
-            Y <input type="number" v-model="this.layers[this.tmpLayer.id].y">
-            <div class="range-out">
-              <div class="scale">
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-                <div>|</div>
-              </div>
-              <input class="range" type="range" v-model="this.layers[this.tmpLayer.id].y" min="0" max="700">
-            </div>
-          </div>
+          <span class="input-title">Выравнивание</span>
+          <button class="btn align-btn" type="button" @click="setHorisontalAlign">центр по горизонтали</button>
+          <br>
+          <button class="btn align-btn" type="button" @click="setVerticalAlign">центр по вертикали</button>
+          <br>
+          <br>
+          <button @click="resetTransform(tmpLayer.id)" type="button" class="btn btn-warning">сбросить все</button>
         </div>
-        <!--        </div>-->
-        <br>
-        <!--        <div v-if="tmpLayer.rotate">-->
-        <span class="input-title inline">Поворот </span><input type="number" v-model="tmpLayer.rotate" min="-180"
-                                                               max="180">
-        <div class="range-out">
-          <div class="scale">
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-            <div>|</div>
-          </div>
-          <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
-        </div>
-        <br>
-        <span class="input-title">Выравнивание</span>
-        <button class="btn align-btn" type="button" @click="setHorisontalAlign">центр по горизонтали</button>
-        <br>
-        <button class="btn align-btn" type="button" @click="setVerticalAlign">центр по вертикали</button>
-        <br>
-        <br>
-        <button @click="resetTransform(tmpLayer.id)" type="button" class="btn btn-warning">сбросить все</button>
       </div>
-    </div>
     </div>
   </div>
 </template>
 <script>
 let tmpW, tmpH, tmpSrc, tmpBg, tmpFileName;
+
 // доставание cookie
 function readCookie(name) {
   const matches = document.cookie.match(new RegExp(
@@ -465,6 +487,7 @@ export default defineComponent({
   },
   data() {
     return {
+      loader: false,
       parentWidth: settings.containerW, // 400
       parentHeight: settings.containerH, // 773
       defaultText: 'ваш текст',
@@ -532,7 +555,7 @@ export default defineComponent({
     onDrag(e) {
       try {
         let index = e.inputEvent.target.id;
-        if(this.layers[index].isActive){ // позволяем двигать только активный слой
+        if (this.layers[index].isActive) { // позволяем двигать только активный слой
           this.layers[index].x = e.translate[0];
           this.layers[index].y = e.translate[1];
           e.target.style.transform = e.transform;
@@ -650,9 +673,11 @@ export default defineComponent({
     },
     startLoader() {
       document.body.style.cursor = 'progress';
+      this.loader = true;
     },
     stopLoader() {
       document.body.style.cursor = ''
+      this.loader = false;
     },
     clearActive() { // все слои неактивными
       this.layers.forEach(item => {
@@ -771,6 +796,7 @@ export default defineComponent({
               // $alert.show().addClass('alert-danger').text('Ошибка ' + code + '. ' + errText);
               $alert.style.visibility = 'visible';
               $alert.style.display = 'block';
+              loader.style.display = 'none';
               $alert.classList.add('alert-danger');
               $alert.innerHTML = 'Ошибка ' + code + '. ' + errText;
             }
@@ -783,6 +809,7 @@ export default defineComponent({
           //
         }, 'image/png');
       });
+      this.stopLoader();
     },
     screenshot(container) { // собственно скриншот
       let fileName = this.strRand(12);
@@ -843,14 +870,14 @@ export default defineComponent({
       this.tmpLayer.lineCount = lineCount;
       let arr = [];
       let maxStr = '';
-      if(lineCount > 1){ // многострочный текст
+      if (lineCount > 1) { // многострочный текст
         arr = text.split('\n');
         arr.forEach((item) => { // находим самую длинную строку в многострочном тексте
-          if(item.length > maxStr.length){
+          if (item.length > maxStr.length) {
             maxStr = item;
           }
         });
-       text = maxStr;
+        text = maxStr;
       }
       let el = document.createElement('span');
       el.style.fontSize = this.tmpLayer.fontSize + 'px';
@@ -917,19 +944,20 @@ export default defineComponent({
       this.setActive(id);
       this.save();
     },
-    toggleShadow(){
+    toggleShadow() {
       this.tmpLayer.isShadow = !this.tmpLayer.isShadow;
-      if(this.tmpLayer.isShadow){
+      if (this.tmpLayer.isShadow) {
         this.tmpLayer.isShadow = false;
         this.tmpLayer.shadowX = 0;
         this.tmpLayer.shadowY = 0;
         this.tmpLayer.shadowR = 0;
         this.tmpLayer.shadowColor = 'transparent';
-      }else{
+      } else {
         this.tmpLayer.isShadow = true;
       }
     },
     addImg() { // добавление изображения
+      // this.loader = true;
       this.hideProgress();
       this.clearActive();
       document.getElementById('imgInput').click(); // клик по input[type=file]
@@ -946,7 +974,6 @@ export default defineComponent({
         alert('Превышен размер файла (не более ' + settings.maxImgSize + ' мегабайт)');
         return;
       }
-
       //
       async function f() {
         let reader = new FileReader();
@@ -959,6 +986,7 @@ export default defineComponent({
         }
         reader.onerror = function () {
           alert(reader.error);
+          this.loader = false;
         };
       }
 
@@ -983,7 +1011,7 @@ export default defineComponent({
             canvas.width = settings.maxImgWidth;
             let height = Math.floor(settings.maxImgWidth / ratio);
             canvas.height = height;
-            var ctx = canvas.getContext("2d");
+            let ctx = canvas.getContext("2d");
             ctx.drawImage(this, 0, 0, settings.maxImgWidth, height);
             tmpW = settings.maxImgWidth;
             tmpH = height;
@@ -993,13 +1021,16 @@ export default defineComponent({
               reader.onload = function () {
                 tmpSrc = reader.result; // url с данными
               };
+              reader.onerror = function() {
+                console.log(reader.error);
+              };
             }, 'image/png');
           }
           document.getElementById('push').click(); // идем к методу pushImg()
         }
       }
-
       //
+      this.loader = true;
       f();
     },
     pushImg() { // добавляем в массив
@@ -1037,6 +1068,7 @@ export default defineComponent({
       this.clearActive();
       this.setActive(id);
       this.save();
+      this.loader = false;
     },
     getFileExt(fname) { // получаем расширение файла
       return fname.slice((fname.lastIndexOf(".") - 1 >>> 0) + 2);
@@ -1114,6 +1146,7 @@ export default defineComponent({
       localStorage.clear();
       this.hideProgress();
       this.showAlert = false;
+      tmpSrc = tmpW = tmpH = tmpBg = tmpFileName = undefined;
     },
     resetTransform(id) { // сброс всех трансформаций слоя
       if (id >= 0) {
@@ -1218,12 +1251,12 @@ export default defineComponent({
     setVerticalAlign() { // выравнивание слоя по вертикали
       this.layers[this.tmpLayer.id].y = (this.parentHeight - this.layers[this.tmpLayer.id].h) / 2;
     },
-    setTextAlign(align){
-        this.tmpLayer.textAlign = align;
-    }
+    setTextAlign(align) {
+      this.tmpLayer.textAlign = align;
+    },
   },
   mounted() {
-    if (this.layers.length && !this.tmpLayer.inUse) {
+    if (this.layers.length && (!this.tmpLayer.inUse && !this.loader)) {
       this.showAlert = true;
     }
     // достаем сохраненные данные
@@ -1304,16 +1337,7 @@ export default defineComponent({
           this.layers[updatedList.id].isShadow = updatedList.isShadow;
           this.layers[updatedList.id].textAlign = updatedList.textAlign;
           // this.save();
-          /*let el = document.getElementById(updatedList.id);
-          if(el){
-            console.log('here');
-            el.click();
-            el.nextElementSibling.click();
-            el.focus();
-            el.nextElementSibling.focus();
-          }*/
         }
-
       },
       deep: true
     },
