@@ -3,10 +3,6 @@
     <div class="left">
       <div class="d-flex">
         <input id="imgInput" type="file" @input="readFile" style="display: none">
-        <!-- фейковые кнопки -->
-        <button id="insert" type="button" @click="insertImg" style="display: none"></button>
-        <button id="push" type="button" @click="pushImg" style="display: none"></button>
-        <!---->
         <div class="img-tab btn btn-light d-flex" @click="addImg">
           <div class="img-tab-icon"></div>
           <div class="tab-title">+ изображение</div>
@@ -435,7 +431,7 @@
   </div>
 </template>
 <script>
-let tmpW, tmpH, tmpSrc, tmpBg, tmpFileName;
+// let tmpW, tmpH, tmpSrc, tmpBg, tmpFileName;
 
 // доставание cookie
 function readCookie(name) {
@@ -487,6 +483,13 @@ export default defineComponent({
   },
   data() {
     return {
+      //
+      tmpW: undefined,
+      tmpH: undefined,
+      tmpSrc: undefined,
+      tmpBg: undefined,
+      tmpFileName: undefined,
+      //
       loader: false,
       parentWidth: settings.containerW, // 400
       parentHeight: settings.containerH, // 773
@@ -960,7 +963,7 @@ export default defineComponent({
       // this.loader = true;
       this.hideProgress();
       this.clearActive();
-      document.getElementById('imgInput').click(); // клик по input[type=file]
+      document.getElementById('imgInput').click(); // клик по скрытому input[type=file]
     },
     readFile() { // по событию onchange на input[type=file]
       let input = document.getElementById('imgInput');
@@ -974,64 +977,59 @@ export default defineComponent({
         alert('Превышен размер файла (не более ' + settings.maxImgSize + ' мегабайт)');
         return;
       }
-      //
-      async function f() {
+      // чтобы не терять контекст оборачиваем в стрелочную функцию
+      (async () => {
         let reader = new FileReader();
         await reader.readAsDataURL(file);
-        reader.onload = await function () {
-          tmpSrc = reader.result;
-          tmpFileName = file.name;
+        reader.onload = async () => {
+          // console.log(this);
+          this.tmpSrc = await reader.result;
+          this.tmpFileName = await file.name;
           input.value = null; // очищаем а то при добавлении одинаковых файлов трабл
-          document.getElementById('insert').click(); // клик на фейковой кнопке и переход к insertImg()
+          this.insertImg();
         }
-        reader.onerror = function () {
+        reader.onerror = () => {
           alert(reader.error);
           this.loader = false;
         };
-      }
-
-      //
-      f();
+      })();
     },
     insertImg() {
       let id = this.layers.length ? this.layers.length : 0;
-
-      //
-      async function f() {
+      // чтобы не терять контекст оборачиваем в стрелочную функцию
+      (async () => {
         // финт ушами чтобы узнать реальный размер Base64 изображения
         let tmpImg = new Image();
-        tmpImg.src = tmpSrc;
-        tmpImg.onload = await function () {
-          tmpW = tmpImg.naturalWidth;
-          tmpH = tmpImg.naturalHeight;
+        tmpImg.src = this.tmpSrc;
+        tmpImg.onload = async () =>{
+          this.tmpW = tmpImg.naturalWidth;
+          this.tmpH = tmpImg.naturalHeight;
           //
-          if (tmpW > settings.maxImgWidth) { // превышает допустимый размер - уменьшаем
-            let ratio = tmpW / tmpH;
+          if (this.tmpW > settings.maxImgWidth) { // превышает допустимый размер - уменьшаем
+            let ratio = this.tmpW / this.tmpH;
             let canvas = document.createElement('canvas');
             canvas.width = settings.maxImgWidth;
             let height = Math.floor(settings.maxImgWidth / ratio);
             canvas.height = height;
             let ctx = canvas.getContext("2d");
-            ctx.drawImage(this, 0, 0, settings.maxImgWidth, height);
-            tmpW = settings.maxImgWidth;
-            tmpH = height;
-            canvas.toBlob(function (blob) {
-              let reader = new FileReader();
-              reader.readAsDataURL(blob); // конвертирует Blob в base64 и вызывает onload
-              reader.onload = function () {
-                tmpSrc = reader.result; // url с данными
+            ctx.drawImage(tmpImg, 0, 0, settings.maxImgWidth, height);
+            this.tmpW = settings.maxImgWidth;
+            this.tmpH = height;
+            canvas.toBlob(async (blob) => {
+              let reader = await new FileReader();
+              await reader.readAsDataURL(blob); // конвертирует Blob в base64 и вызывает onload
+              reader.onload = async () => {
+                this.tmpSrc = await reader.result; // url с данными
               };
-              reader.onerror = function() {
+              reader.onerror = () => {
                 console.log(reader.error);
               };
             }, 'image/png');
           }
-          document.getElementById('push').click(); // идем к методу pushImg()
+          this.pushImg();
         }
-      }
-      //
+      })();
       this.loader = true;
-      f();
     },
     pushImg() { // добавляем в массив
       // получим id
@@ -1052,16 +1050,16 @@ export default defineComponent({
         visibility: 'visible',
         zIndex: id,
         type: 'img',
-        fileName: tmpFileName,
-        src: tmpSrc,
+        fileName: this.tmpFileName,
+        src: this.tmpSrc,
         x: 20,
         y: 20,
         scaleX: 1,
         scaleY: 1,
-        w: tmpW,
-        h: tmpH,
-        originalW: tmpW,
-        originalH: tmpH,
+        w: this.tmpW,
+        h: this.tmpH,
+        originalW: this.tmpW,
+        originalH: this.tmpH,
         rotate: 0.00001,
         isActive: true,
       });
@@ -1146,7 +1144,7 @@ export default defineComponent({
       localStorage.clear();
       this.hideProgress();
       this.showAlert = false;
-      tmpSrc = tmpW = tmpH = tmpBg = tmpFileName = undefined;
+      this.tmpSrc = this.tmpW = this.tmpH = this.tmpBg = this.tmpFileName = undefined;
     },
     resetTransform(id) { // сброс всех трансформаций слоя
       if (id >= 0) {
