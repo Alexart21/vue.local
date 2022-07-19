@@ -145,14 +145,20 @@ body {
 }
 
 .right {
+  position: relative;
+  /* position: fixed; */
   margin-left: 1em;
   width: 400px;
 }
 
 .right-inner {
-  /*position: fixed;*/
-  overflow-y: auto;
-  height: var(--bg-height);
+  position: fixed;
+  overflow-y: scroll;
+  max-height: 100vh;
+  padding-bottom: 2em;
+  min-width: 400px;
+  /* height: var(--bg-height); */
+
 }
 
 .img-tab, .text-tab {
