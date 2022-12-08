@@ -57,10 +57,12 @@ export default {
       //
       if (this.getFileExt(file.name) != 'png' || file.type != 'image/png') {
         alert('Недопустимый тип файла! (только PNG)');
+        this.$emit('addButtonsEmit', {loader: false});
         return;
       }
       if (file.size > settings.maxImgSize * 1024 * 1024) {
         alert('Превышен размер файла (не более ' + settings.maxImgSize + ' мегабайт)');
+        this.$emit('addButtonsEmit', {loader: false});
         return;
       }
       // чтобы не терять контекст оборачиваем в стрелочную функцию
@@ -87,7 +89,7 @@ export default {
         // финт ушами чтобы узнать реальный размер Base64 изображения
         let tmpImg = new Image();
         tmpImg.src = this.tmpSrc;
-        tmpImg.onload = async () => {
+        tmpImg.onload = () => {
           this.tmpW = tmpImg.naturalWidth;
           this.tmpH = tmpImg.naturalHeight;
           //
@@ -101,11 +103,11 @@ export default {
             ctx.drawImage(tmpImg, 0, 0, settings.maxImgWidth, height);
             this.tmpW = settings.maxImgWidth;
             this.tmpH = height;
-            canvas.toBlob(async (blob) => {
-              let reader = await new FileReader();
-              await reader.readAsDataURL(blob); // конвертирует Blob в base64 и вызывает onload
-              reader.onload = async () => {
-                this.tmpSrc = await reader.result; // url с данными
+            canvas.toBlob((blob) => {
+              let reader = new FileReader();
+              reader.readAsDataURL(blob); // конвертирует Blob в base64 и вызывает onload
+              reader.onload = () => {
+                this.tmpSrc = reader.result; // url с данными
               };
               reader.onerror = () => {
                 console.log(reader.error);
@@ -163,24 +165,15 @@ export default {
         item.zIndex = item.id;
       })
       this.tmpLayer.inUse = false;
-      // this.showAlert = true;
-      // this.alertText = '';
       let controls = document.getElementsByClassName('moveable-control-box')
       let i = 0;
       while (controls[i]) {
         controls[i].style.display = 'none';
         i++;
       }
-      // this.showAlert = false;
     },
     setActive(index) { // делает слой активным. копируем данные слоя во временный слой для редактирования
-      // this.showBgGalery = false;
-      // this.noBorder = false;
-      // this.hideProgress();
       this.clearActive();
-      // this.showAlert = false;
-      // this.alertText = '';
-      //
       let controls = document.getElementsByClassName('moveable-control-box')
       let i = 0;
       while (controls[i]) { // эл-ты управления оставляем только для активного слоя
@@ -234,7 +227,6 @@ export default {
       return fname.slice((fname.lastIndexOf(".") - 1 >>> 0) + 2);
     },
     addText() { // добавляем текстовый слой
-      // this.$emit('addButtonsEmit', {loader: true});
       let id;
       // назначаем id
       if (!this.layers.length) { // еще ничего не добавлено
@@ -279,7 +271,6 @@ export default {
       });
       this.clearActive();
       this.setActive(id);
-      // this.$emit('addButtonsEmit', {loader: false});
     },
   }
 }

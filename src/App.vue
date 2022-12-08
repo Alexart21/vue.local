@@ -82,7 +82,7 @@
   </div>
 </template>
 <script>
-import {defineComponent} from "vue";
+// import {defineComponent} from "vue";
 // import Moveable from "vue3-moveable";
 //
 import Editor from '@/components/Editor';
@@ -105,7 +105,7 @@ import LayersBlock from '@/components/leftBlocks/LayersBlock';
 import SaveButtons from '@/components/leftBlocks/SaveButtons';
 import ProgressBar from '@/components/leftBlocks/ProgressBar';
 
-export default defineComponent({
+export default ({
   components: {
     Editor,
     RotateControl,
@@ -465,7 +465,7 @@ export default defineComponent({
   },
   watch: {
     layers: {
-      handler(updatedList) {
+      handler() {
         this.save();
       },
       deep: true

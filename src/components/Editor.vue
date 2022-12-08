@@ -10,15 +10,15 @@
               {{ layer.content }}
             </div>
             <moveable
-              v-bind:target="['.' + layer.class]"
-              v-bind:throttleDrag="1"
-              v-bind:edgeDraggable="false"
-              v-bind:startDragRotate="0"
-              v-bind:throttleDragRotate="0"
+              :target="['.' + layer.class]"
+              :throttleDrag="1"
+              :edgeDraggable="false"
+              :startDragRotate="0"
+              :throttleDragRotate="0"
               className="moveable"
-              v-bind:draggable=true
-              v-bind:scalable=true
-              v-bind:rotatable=true
+              :draggable=true
+              :scalable=true
+              :rotatable=true
               @drag="onDrag"
               @scale="onScale"
               @rotate="onRotate"
@@ -30,15 +30,15 @@
                  :style="{backgroundImage: 'url(' + layer.src + ')', width: layer.w + 'px', height: layer.h + 'px', transform: 'translate(' + layer.x + 'px, ' + layer.y + 'px) ' + 'rotate(' + layer.rotate + 'deg) ' + 'scale(' + layer.scaleX + ', ' + layer.scaleY + ')', visibility: layer.visibility, zIndex: layer.zIndex}">
             </div>
             <moveable
-              v-bind:target="['.' + layer.class]"
-              v-bind:throttleDrag="1"
-              v-bind:edgeDraggable="false"
-              v-bind:startDragRotate="0"
-              v-bind:throttleDragRotate="0"
+              :target="['.' + layer.class]"
+              :throttleDrag="1"
+              :edgeDraggable="false"
+              :startDragRotate="0"
+              :throttleDragRotate="0"
               className="moveable"
-              v-bind:draggable=true
-              v-bind:scalable=true
-              v-bind:rotatable=true
+              :draggable=true
+              :scalable=true
+              :rotatable=true
               @drag="onDrag"
               @scale="onScale"
               @rotate="onRotate"
