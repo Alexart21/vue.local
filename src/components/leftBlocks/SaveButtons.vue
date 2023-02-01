@@ -71,7 +71,10 @@ export default {
           formData = new FormData();
           formData.append('screen', blob, 'test.png');
           // csrf токен забит в куки в файле шаблона views/layout/constructor.php
+          // это для YII2
           formData.append(readCookie('csrf_param'), readCookie('csrf_token'));
+          // это для Laravel
+          formData.append('_token', readCookie('csrf'));
           // отправка
           /* Fetch без индикатора загрузки */
           /*let response = fetch(url, {
