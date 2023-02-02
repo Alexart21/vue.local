@@ -72,7 +72,7 @@ export default {
           formData.append('screen', blob, 'test.png');
           // csrf токен забит в куки в файле шаблона views/layout/constructor.php
           // это для YII2
-          formData.append(readCookie('csrf_param'), readCookie('csrf_token'));
+          // formData.append(readCookie('csrf_param'), readCookie('csrf_token'));
           // это для Laravel
           formData.append('_token', readCookie('csrf'));
           // отправка
@@ -126,8 +126,9 @@ export default {
               $alert.innerHTML = 'Изображение загружено';
             } else {
               let code = xhr.status;
-              console.log("Ошибка " + code);
               let errText;
+              // это было для YII2
+              /*
               switch (code) {
                 case 413 :
                   errText = 'Слишком большой файл.';
@@ -138,6 +139,12 @@ export default {
                 default :
                   errText = '';
               }
+              */
+             // Для Laravel
+             if(code === 422){
+                let resp = JSON.parse(xhr.response)
+                errText = resp.errors.screen[0];
+             }
               progressBar.classList.remove('bg-success');
               progressBar.classList.add('bg-danger');
               progressBar.innerText = 'Ошибка !';
