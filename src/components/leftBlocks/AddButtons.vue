@@ -1,6 +1,12 @@
 <template>
   <div class="d-flex">
-    <input id="imgInput" type="file" @input="readFile" ref="imgInp" style="display: none">
+    <input
+      id="imgInput"
+      type="file"
+      @input="readFile"
+      ref="imgInp"
+      style="display: none"
+    />
     <div class="img-tab btn btn-light d-flex" @click="addImg">
       <div class="img-tab-icon"></div>
       <div class="tab-title">+ изображение</div>
@@ -12,18 +18,18 @@
   </div>
 </template>
 <script>
-import {settings} from "@/_config";
+import { settings } from '@/_config'
 export default {
   emits: ['addButtonsEmit'],
   props: {
     tmpLayer: {
       type: Object,
-      required: true,
+      required: true
     },
     layers: {
       type: Array,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -40,97 +46,100 @@ export default {
       defaultTextAlign: 'left',
       defaultFontFamily: 'Arial',
       defaultTextWidth: 0,
-      defaultTextHeight: 0,
+      defaultTextHeight: 0
     }
   },
   methods: {
-    addImg() { // добавление изображения
-      // this.hideProgress();
-      // this.clearActive();
-      // document.getElementById('imgInput').click(); // клик по скрытому input[type=file]
-      this.$refs.imgInp.click(); // клик по скрытому input[type=file]
+    addImg() {
+      // добавление изображения
+      this.$refs.imgInp.click() // клик по скрытому input[type=file]
     },
-    readFile() { // по событию onchange на input[type=file]
-      this.$emit('addButtonsEmit', {loader: true});
-      let input = this.$refs.imgInp;
-      let file = input.files[0];
+    readFile() {
+      // по событию onchange на input[type=file]
+      this.$emit('addButtonsEmit', { loader: true })
+      let input = this.$refs.imgInp
+      let file = input.files[0]
       //
       if (this.getFileExt(file.name) != 'png' || file.type != 'image/png') {
-        alert('Недопустимый тип файла! (только PNG)');
-        this.$emit('addButtonsEmit', {loader: false});
-        return;
+        alert('Недопустимый тип файла! (только PNG)')
+        this.$emit('addButtonsEmit', { loader: false })
+        return
       }
       if (file.size > settings.maxImgSize * 1024 * 1024) {
-        alert('Превышен размер файла (не более ' + settings.maxImgSize + ' мегабайт)');
-        this.$emit('addButtonsEmit', {loader: false});
+        alert(
+          'Превышен размер файла (не более ' +
+            settings.maxImgSize +
+            ' мегабайт)'
+        )
+        this.$emit('addButtonsEmit', { loader: false })
         return;
       }
       // чтобы не терять контекст оборачиваем в стрелочную функцию
       (async () => {
-        let reader = new FileReader();
-        await reader.readAsDataURL(file);
+        let reader = new FileReader()
+        await reader.readAsDataURL(file)
         reader.onload = async () => {
           // console.log(this);
-          this.tmpSrc = await reader.result;
-          this.tmpFileName = await file.name;
-          input.value = null; // очищаем а то при добавлении одинаковых файлов трабл
-          this.insertImg();
+          this.tmpSrc = await reader.result
+          this.tmpFileName = await file.name
+          input.value = null // очищаем а то при добавлении одинаковых файлов трабл
+          this.insertImg()
         }
         reader.onerror = () => {
-          alert(reader.error);
-          this.loader = false;
-        };
-      })();
+          alert(reader.error)
+          this.loader = false
+        }
+      })()
     },
     insertImg() {
       let id = this.layers.length ? this.layers.length : 0;
       // чтобы не терять контекст оборачиваем в стрелочную функцию
       (async () => {
         // финт ушами чтобы узнать реальный размер Base64 изображения
-        let tmpImg = new Image();
-        tmpImg.src = this.tmpSrc;
+        let tmpImg = new Image()
+        tmpImg.src = this.tmpSrc
         tmpImg.onload = () => {
-          this.tmpW = tmpImg.naturalWidth;
-          this.tmpH = tmpImg.naturalHeight;
+          this.tmpW = tmpImg.naturalWidth
+          this.tmpH = tmpImg.naturalHeight
           //
-          if (this.tmpW > settings.maxImgWidth) { // превышает допустимый размер - уменьшаем
-            let ratio = this.tmpW / this.tmpH;
-            let canvas = document.createElement('canvas');
-            canvas.width = settings.maxImgWidth;
-            let height = Math.floor(settings.maxImgWidth / ratio);
-            canvas.height = height;
-            let ctx = canvas.getContext("2d");
-            ctx.drawImage(tmpImg, 0, 0, settings.maxImgWidth, height);
-            this.tmpW = settings.maxImgWidth;
-            this.tmpH = height;
-            canvas.toBlob((blob) => {
-              let reader = new FileReader();
-              reader.readAsDataURL(blob); // конвертирует Blob в base64 и вызывает onload
+          if (this.tmpW > settings.maxImgWidth) {
+            // превышает допустимый размер - уменьшаем
+            let ratio = this.tmpW / this.tmpH
+            let canvas = document.createElement('canvas')
+            canvas.width = settings.maxImgWidth
+            let height = Math.floor(settings.maxImgWidth / ratio)
+            canvas.height = height
+            let ctx = canvas.getContext('2d')
+            ctx.drawImage(tmpImg, 0, 0, settings.maxImgWidth, height)
+            this.tmpW = settings.maxImgWidth
+            this.tmpH = height
+            canvas.toBlob(blob => {
+              let reader = new FileReader()
+              reader.readAsDataURL(blob) // конвертирует Blob в base64 и вызывает onload
               reader.onload = () => {
-                this.tmpSrc = reader.result; // url с данными
-              };
+                this.tmpSrc = reader.result // url с данными
+              }
               reader.onerror = () => {
-                console.log(reader.error);
-              };
-            }, 'image/png');
+                console.log(reader.error)
+              }
+            }, 'image/png')
           }
-          this.pushImg();
+          this.pushImg()
         }
-      })();
-      // this.alertText = 'загружаю...';
-      // this.loader = true;
+      })()
     },
-    pushImg() { // добавляем в массив
+    pushImg() { // добавляем в массив слоев
       // получим id
-      let id;
-      if (!this.layers.length) { // еще ничего не добавлено
-        id = 0;
-      } else {
-        let arr = [];
-        this.layers.forEach((item) => {
-          arr.push(item.id);
-        });
-        id = Math.max(...arr) + 1;
+      let id
+      if (!this.layers.length) {
+        // еще ничего не добавлено
+        id = 0
+      } else { // из имеющихся следующий по порядку
+        let arr = []
+        this.layers.forEach(item => {
+          arr.push(item.id)
+        })
+        id = Math.max(...arr) + 1
       }
       //
       this.layers.push({
@@ -150,93 +159,99 @@ export default {
         originalW: this.tmpW,
         originalH: this.tmpH,
         rotate: 0.00001,
-        isActive: true,
-      });
-      this.clearActive();
-      this.setActive(id);
-      // this.save();
-      // this.loader = false;
-      // this.alertText = '';
-      this.$emit('addButtonsEmit', {loader: false});
-    },
-    clearActive() { // все слои неактивными
-      this.layers.forEach(item => {
-        item.isActive = false;
-        item.zIndex = item.id;
+        isActive: true
       })
-      this.tmpLayer.inUse = false;
+      this.clearActive()
+      this.setActive(id)
+      this.$emit('addButtonsEmit', { loader: false })
+    },
+    clearActive() {
+      // все слои неактивными
+      this.layers.forEach(item => {
+        item.isActive = false
+        item.zIndex = item.id
+      })
+      this.tmpLayer.inUse = false
       let controls = document.getElementsByClassName('moveable-control-box')
-      let i = 0;
+      let i = 0
       while (controls[i]) {
-        controls[i].style.display = 'none';
-        i++;
+        controls[i].style.display = 'none'
+        i++
       }
     },
-    setActive(index) { // делает слой активным. копируем данные слоя во временный слой для редактирования
-      this.clearActive();
+    setActive(index) {
+      // делает слой активным. копируем данные слоя во временный слой для редактирования
+      this.clearActive()
       let controls = document.getElementsByClassName('moveable-control-box')
-      let i = 0;
-      while (controls[i]) { // эл-ты управления оставляем только для активного слоя
+      let i = 0
+      while (controls[i]) {
+        // эл-ты управления оставляем только для активного слоя
         if (i == index) {
-          controls[i].style.display = 'block';
+          controls[i].style.display = 'block'
         }
-        i++;
+        i++
       }
       //
-      this.tmpLayer.id = this.layers[index].id;
-      this.tmpLayer.class = this.layers[index].class;
-      this.tmpLayer.visibility = this.layers[index].visibility;
-      this.tmpLayer.type = this.layers[index].type;
-      this.tmpLayer.fileName = this.layers[index].fileName;
-      this.tmpLayer.content = this.layers[index].content;
-      this.tmpLayer.src = this.layers[index].src;
-      this.tmpLayer.x = this.layers[index].x;
-      this.tmpLayer.y = this.layers[index].y;
-      this.tmpLayer.scaleX = this.layers[index].scaleX;
+      this.tmpLayer.id = this.layers[index].id
+      this.tmpLayer.class = this.layers[index].class
+      this.tmpLayer.visibility = this.layers[index].visibility
+      this.tmpLayer.type = this.layers[index].type
+      this.tmpLayer.fileName = this.layers[index].fileName
+      this.tmpLayer.content = this.layers[index].content
+      this.tmpLayer.src = this.layers[index].src
+      this.tmpLayer.x = this.layers[index].x
+      this.tmpLayer.y = this.layers[index].y
+      this.tmpLayer.scaleX = this.layers[index].scaleX
       //
-      if (this.layers[index].scaleX != 1) { // вычисляем трансформацию в процентах для показа
-        this.tmpLayer.percentX = Math.floor(this.layers[index].scaleX * 100);
+      if (this.layers[index].scaleX != 1) {
+        // вычисляем трансформацию в процентах для показа в ползунках input[type=range]
+        this.tmpLayer.percentX = Math.floor(this.layers[index].scaleX * 100)
       }
       if (this.layers[index].scaleY != 1) {
-        this.tmpLayer.percentY = Math.floor(this.layers[index].scaleY * 100);
+        this.tmpLayer.percentY = Math.floor(this.layers[index].scaleY * 100)
       }
       //
-      this.tmpLayer.scaleY = this.layers[index].scaleY;
-      this.tmpLayer.w = this.layers[index].w;
-      this.tmpLayer.h = this.layers[index].h;
-      this.tmpLayer.fontFamily = this.layers[index].fontFamily;
-      this.tmpLayer.fontSize = this.layers[index].fontSize;
-      this.tmpLayer.interval = this.layers[index].interval;
-      this.tmpLayer.lineHeight = this.layers[index].lineHeight;
-      this.tmpLayer.textAlign = this.layers[index].textAlign;
-      this.tmpLayer.lineCount = this.layers[index].lineCount;
-      this.tmpLayer.color = this.layers[index].color;
-      this.tmpLayer.rotate = this.layers[index].rotate;
+      this.tmpLayer.scaleY = this.layers[index].scaleY
+      this.tmpLayer.w = this.layers[index].w
+      this.tmpLayer.h = this.layers[index].h
+      this.tmpLayer.fontFamily = this.layers[index].fontFamily
+      this.tmpLayer.fontSize = this.layers[index].fontSize
+      this.tmpLayer.interval = this.layers[index].interval
+      this.tmpLayer.lineHeight = this.layers[index].lineHeight
+      this.tmpLayer.textAlign = this.layers[index].textAlign
+      this.tmpLayer.lineCount = this.layers[index].lineCount
+      this.tmpLayer.color = this.layers[index].color
+      this.tmpLayer.rotate = this.layers[index].rotate
       //
-      this.tmpLayer.shadowX = this.layers[index].shadowX;
-      this.tmpLayer.shadowY = this.layers[index].shadowY;
-      this.tmpLayer.shadowR = this.layers[index].shadowR;
-      this.tmpLayer.shadowColor = this.layers[index].shadowColor;
-      this.tmpLayer.isShadow = this.layers[index].type === 'txt' && this.layers[index].shadowColor !== 'transparent';
-      this.layers[index].isActive = true;
-      this.tmpLayer.inUse = true;
+      this.tmpLayer.shadowX = this.layers[index].shadowX
+      this.tmpLayer.shadowY = this.layers[index].shadowY
+      this.tmpLayer.shadowR = this.layers[index].shadowR
+      this.tmpLayer.shadowColor = this.layers[index].shadowColor
+      this.tmpLayer.isShadow =
+        this.layers[index].type === 'txt' &&
+        this.layers[index].shadowColor !== 'transparent'
+      this.layers[index].isActive = true
+      this.tmpLayer.inUse = true
       //
-      this.alignCenter = (this.tmpLayer.textAlign === 'center') ? true : false;
+      this.alignCenter = this.tmpLayer.textAlign === 'center' ? true : false
     },
-    getFileExt(fname) { // получаем расширение файла
-      return fname.slice((fname.lastIndexOf(".") - 1 >>> 0) + 2);
+    getFileExt(fname) {
+      // получаем расширение файла
+      return fname.slice(((fname.lastIndexOf('.') - 1) >>> 0) + 2)
     },
-    addText() { // добавляем текстовый слой
-      let id;
+    addText() {
+      // добавляем текстовый слой
+      let id
       // назначаем id
-      if (!this.layers.length) { // еще ничего не добавлено
-        id = 0;
+      if (!this.layers.length) {
+        // еще ничего не добавлено
+        id = 0
       } else {
-        let arr = [];
-        this.layers.forEach((item) => {
-          arr.push(item.id);
-        });
-        id = Math.max(...arr) + 1;
+        let arr = []
+        this.layers.forEach(item => {
+          arr.push(item.id)
+        })
+        id = Math.max(...arr) + 1
       }
       //
       this.layers.push({
@@ -267,11 +282,11 @@ export default {
         shadowY: 0,
         shadowR: 0,
         shadowColor: 'transparent',
-        isShadow: false,
-      });
-      this.clearActive();
-      this.setActive(id);
-    },
+        isShadow: false
+      })
+      this.clearActive()
+      this.setActive(id)
+    }
   }
 }
 </script>

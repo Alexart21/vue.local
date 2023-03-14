@@ -33,13 +33,8 @@ export default {
         this.tmpLayer.interval = 0;
         this.tmpLayer.fontFamily = 'Arial';
 
-        // this.layers[id].shadowX = 0;
-        // this.layers[id].shadowY = 0;
-        // this.layers[id].shadowR = 0;
-
         this.layers[id].x = 20;
         this.layers[id].y = 20;
-        
         //
         if (this.tmpLayer.type == 'img') {
           this.layers[id].w = this.layers[id].originalW;

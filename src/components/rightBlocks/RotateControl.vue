@@ -17,7 +17,6 @@
     </div>
     <input class="range" type="range" v-model="tmpLayer.rotate" min="-180" max="180">
   </div>
-  <!-- <input  type="text" class="in-data" v-model="tmpLayer.rotate" min="-180" :max="180"> -->
 </template>
 <script>
 export default {

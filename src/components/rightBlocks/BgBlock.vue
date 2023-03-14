@@ -88,15 +88,11 @@ export default {
     changeBg(index, fileName) { // изменяем фоновую картинку
       this.clearBgData();
       this.$emit('changeBgImg', fileName);
-      // this.showAlert = false;
-      // this.alertText = '';
       this.clearBgData();
       this.bgArr[index].isActive = true;
       this.defaultBg = fileName;
       localStorage.setItem('bgIndex', index);
       localStorage.setItem('bgFileName', fileName);
-      // console.log('дочка');
-      // console.log(fileName);
     },
     /*
     здесь меняем не фоновую картинку а попиксельно меняем один цвет на другой!!
@@ -106,9 +102,7 @@ export default {
         item.isActive = false;
       });
       if (this.bgColor) {
-        // console.log('method changeBgColor this.bgColor = ' + this.bgColor);
         this.palleteColor = this.bgColor;
-        // return;
         if (localStorage.getItem('bgIndex')) { // если есть удаляем прежние данные
           localStorage.removeItem('bgIndex');
           localStorage.removeItem('bgFileName');
@@ -157,9 +151,7 @@ export default {
     let bgColor = localStorage.getItem('bgColor');
     if (bgColor) { // есть сохранненый вариант фона из предложенных
       this.palleteColor = bgColor;
-      // this.bgColor = bgColor;
     }
-    // console.log('bg=' + this.bgColor)
   },
   watch: {
     bgColor: {

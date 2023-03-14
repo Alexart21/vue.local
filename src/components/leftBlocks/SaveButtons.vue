@@ -3,7 +3,7 @@
     <button class="btn btn-success" @click="exportAll">сохранить</button>
     <button class="btn btn-secondary" @click="hideBorder">предпросмотр</button>
     <button id="clear-btn" class="btn btn-danger" @click="clear">
-      <i class="fa fa-trash"> </i>Очистить все
+      <i class="fa fa-trash"> </i>Удалить все
     </button>
   </div>
   <br />
@@ -52,17 +52,16 @@ export default {
     },
     exportAll() {
       this.$emit('saveButtonsEmit', { clear: false })
-      // this.save();
       let container = document.getElementById('img-container')
       this.screenshot(container)
     },
     screenshot(container) {
-      // собственно скриншот
-      let fileName = this.strRand(12)
-      html2canvas(container).then(function (canvas) {
-        canvas.toBlob(function (blob) {
+      // собственно скриншот и сохранение локально на комп
+      html2canvas(container).then((canvas) => {
+        canvas.toBlob((blob) => {
           // после того, как Blob создан, загружаем его
           let link = document.createElement('a')
+          let fileName = this.strRand(12)
           link.download = fileName + '.png'
           link.href = URL.createObjectURL(blob)
           link.click()

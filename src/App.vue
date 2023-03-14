@@ -121,11 +121,7 @@
   </div>
 </template>
 <script>
-// import {defineComponent} from "vue";
-// import Moveable from "vue3-moveable";
-//
 import Editor from '@/components/Editor'
-//
 import { settings } from '@/_config'
 import RotateControl from '@/components/rightBlocks/RotateControl'
 import MoveControl from '@/components/rightBlocks/MoveControl'
@@ -160,7 +156,7 @@ export default {
     BgBlock,
     AddButtons,
     LayersBlock,
-    SaveButtons,
+    SaveButtons
   },
   data() {
     return {
@@ -177,15 +173,11 @@ export default {
       defaultFontFamily: 'Arial',
       defaultTextWidth: 0,
       defaultTextHeight: 0,
-
       defaultBg: 'black.png',
       bgSrc: '',
       showBgGalery: true,
-
       noBorder: false,
-      //
       fontList: ['Arial', 'comic sans ms', 'segoe script'],
-      //
       tmpLayer: {
         // сюда копируються данные активного слоя для редактирования
         id: '',
@@ -212,13 +204,11 @@ export default {
         rotate: '',
         isActive: true,
         inUse: false,
-        //
         shadowX: 0,
         shadowY: 0,
         shadowR: 0,
         shadowColor: 'transparent',
         isShadow: false,
-        //
         percentX: 100, // трансформация (то же что scaleX) только в процентах
         percentY: 100
       },
@@ -235,17 +225,14 @@ export default {
         } else {
           this.loader = false
           this.showAlert = false
-          // this.alertText = '';
         }
       }
-
       this.showBgGalery = false
     },
     layersBlockEmit() {
       document.getElementById('img-container').style.border = 'none'
       this.clearActive()
       this.showAlert = false
-      // this.alertText = '';
       this.showBgGalery = false
       this.showAlert = false
       this.alignCenter = this.tmpLayer.textAlign === 'center' ? true : false
@@ -256,12 +243,8 @@ export default {
       this.noBorder = true
       this.tmpLayer.inUse = false
       this.showAlert = false
-      // this.alertText = '';
       if ($event.clear) {
-        // кнопка "очистить все"
         this.clearTmpLayer()
-        // this.bgColor = '';
-        // this.bgSrc = null;
         this.clearBgData()
         this.layers = []
         localStorage.clear()
@@ -282,7 +265,6 @@ export default {
     hideControls() {
       // скрываем эл-ты управления
       this.showAlert = false
-      // this.alertText = '';
       let controls = document.getElementsByClassName('moveable-control-box')
       let i = 0
       while (controls[i]) {
@@ -297,11 +279,9 @@ export default {
       this.noBorder = true
       this.hideControls()
       this.tmpLayer.inUse = false
-      // let container = this.$refs.imgContainer;
       this.$refs.imgContainer.style.border = 'none'
       this.clearActive()
       this.showAlert = false
-      // this.alertText = '';
     },
     startLoader() {
       document.body.style.cursor = 'progress'
@@ -319,14 +299,12 @@ export default {
       })
       this.tmpLayer.inUse = false
       this.showAlert = true
-      // this.alertText = '';
       let controls = document.getElementsByClassName('moveable-control-box')
       let i = 0
       while (controls[i]) {
         controls[i].style.display = 'none'
         i++
       }
-      // this.showAlert = false;
     },
     save() {
       // слои сохраняем в localStorage
@@ -438,9 +416,9 @@ export default {
       this.tmpLayer.scaleY = 1
       this.tmpLayer.w = 0
       this.tmpLayer.h = 0
-      this.tmpLayer.fontFamily = 'Arial'
-      ;(this.tmpLayer.fontSize = this.defaultFontSize),
-        (this.tmpLayer.interval = 0)
+      this.tmpLayer.fontFamily = 'Arial',
+      this.tmpLayer.fontSize = this.defaultFontSize
+      this.tmpLayer.interval = 0
       this.tmpLayer.color = this.defaultColor
       this.tmpLayer.rotate = ''
       this.tmpLayer.isActive = true
@@ -448,8 +426,8 @@ export default {
       this.tmpLayer.shadowX = 0
       this.tmpLayer.shadowY = 0
       this.tmpLayer.shadowR = 0
-      ;(this.tmpLayer.shadowColor = 'transparent'),
-        (this.tmpLayer.percentX = 100)
+      this.tmpLayer.shadowColor = 'transparent'
+      this.tmpLayer.percentX = 100
       this.tmpLayer.percentY = 100
     },
     clearBgData() {
@@ -483,7 +461,6 @@ export default {
   mounted() {
     if (this.layers.length && !this.tmpLayer.inUse && !this.loader) {
       this.showAlert = true
-      // this.alertText = 'Выберите слой';
     }
     // достаем сохраненные данные
     let bgSrc = localStorage.getItem('bgSrc')
@@ -493,7 +470,7 @@ export default {
     }
     let bgColor = localStorage.getItem('bgColor')
     if (bgColor) {
-      // есть сохранненый вариант фона из предложенных
+      // есть сохранненый вариант цвета фона из предложенных
       this.bgColor = bgColor
     }
     this.getLayers() // слои
@@ -509,16 +486,11 @@ export default {
     tmpLayer: {
       handler(updatedList) {
         if (updatedList.inUse) {
-          // this.layers[updatedList.id].zIndex = updatedList.zIndex;
-          // this.layers[updatedList.id].class = updatedList.class;
-          // this.layers[updatedList.id].x = updatedList.x;
-          // this.layers[updatedList.id].y = updatedList.y;
           this.layers[updatedList.id].scaleX = updatedList.scaleX
           this.layers[updatedList.id].scaleY = updatedList.scaleY
           this.layers[updatedList.id].w = updatedList.w
           this.layers[updatedList.id].h = updatedList.h
           this.layers[updatedList.id].content = updatedList.content
-          // this.layers[updatedList.id].src = updatedList.src;
           this.layers[updatedList.id].fontSize = updatedList.fontSize
           this.layers[updatedList.id].fontFamily = updatedList.fontFamily
           this.layers[updatedList.id].interval = updatedList.interval
@@ -527,14 +499,12 @@ export default {
           this.layers[updatedList.id].textAlign = updatedList.textAlign
           this.layers[updatedList.id].color = updatedList.color
           this.layers[updatedList.id].rotate = updatedList.rotate
-          //
           this.layers[updatedList.id].shadowX = updatedList.shadowX
           this.layers[updatedList.id].shadowY = updatedList.shadowY
           this.layers[updatedList.id].shadowR = updatedList.shadowR
           this.layers[updatedList.id].shadowColor = updatedList.shadowColor
           this.layers[updatedList.id].isShadow = updatedList.isShadow
           this.layers[updatedList.id].textAlign = updatedList.textAlign
-          // this.save();
         }
       },
       deep: true
