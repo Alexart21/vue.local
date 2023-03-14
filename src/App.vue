@@ -12,9 +12,6 @@
         @layersBlockEmit="layersBlockEmit"
       />
       <save-buttons v-if="layers.length" @saveButtonsEmit="saveButtonsEmit" />
-      <br />
-      <br />
-      <progress-bar />
     </div>
     <!--    -->
     <editor
@@ -145,7 +142,6 @@ import BgBlock from '@/components/rightBlocks/BgBlock'
 import AddButtons from '@/components/leftBlocks/AddButtons'
 import LayersBlock from '@/components/leftBlocks/LayersBlock'
 import SaveButtons from '@/components/leftBlocks/SaveButtons'
-import ProgressBar from '@/components/leftBlocks/ProgressBar'
 
 export default {
   components: {
@@ -165,7 +161,6 @@ export default {
     AddButtons,
     LayersBlock,
     SaveButtons,
-    ProgressBar
   },
   data() {
     return {
@@ -251,7 +246,6 @@ export default {
       this.clearActive()
       this.showAlert = false
       // this.alertText = '';
-      this.hideProgress()
       this.showBgGalery = false
       this.showAlert = false
       this.alignCenter = this.tmpLayer.textAlign === 'center' ? true : false
@@ -263,7 +257,6 @@ export default {
       this.tmpLayer.inUse = false
       this.showAlert = false
       // this.alertText = '';
-      this.hideProgress()
       if ($event.clear) {
         // кнопка "очистить все"
         this.clearTmpLayer()
@@ -309,7 +302,6 @@ export default {
       this.clearActive()
       this.showAlert = false
       // this.alertText = '';
-      this.hideProgress()
     },
     startLoader() {
       document.body.style.cursor = 'progress'
@@ -459,13 +451,6 @@ export default {
       ;(this.tmpLayer.shadowColor = 'transparent'),
         (this.tmpLayer.percentX = 100)
       this.tmpLayer.percentY = 100
-    },
-    hideProgress() {
-      // скрываем прогресс бар загрузки
-      document.querySelector('.progress').style.visibility = 'hidden'
-      let alert = document.querySelector('.alert')
-      alert.style.display = 'none'
-      alert.style.visibility = 'hidden'
     },
     clearBgData() {
       // фон приводим в значение по умолчанию

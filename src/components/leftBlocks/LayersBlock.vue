@@ -57,10 +57,7 @@ export default {
       }
     },
     setActive(index) { // делает слой активным. копируем данные слоя во временный слой для редактирования
-      // this.showBgGalery = false;
-      // this.noBorder = false;
       this.$emit('layersBlockEmit');
-      this.hideProgress();
       this.clearActive();
       this.showAlert = false;
       this.alertText = '';
@@ -128,11 +125,9 @@ export default {
         controls[i].style.display = 'none';
         i++;
       }
-      // this.showAlert = false;
     },
     del(index) { // удаление слоя
       this.clearTmpLayer();
-      this.hideProgress();
       this.clearActive();
       let control = document.getElementById(index).nextElementSibling;
       if (this.layers[index]) {
@@ -183,12 +178,6 @@ export default {
       this.tmpLayer.shadowColor = 'transparent',
         this.tmpLayer.percentX = 100;
       this.tmpLayer.percentY = 100;
-    },
-    hideProgress() { // скрываем прогресс бар загрузки
-      document.querySelector('.progress').style.visibility = 'hidden';
-      let alert = document.querySelector('.alert');
-      alert.style.display = 'none';
-      alert.style.visibility = 'hidden';
     },
   },
   computed: {

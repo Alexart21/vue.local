@@ -6,18 +6,19 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "core-js": "^3.26.1",
+    "core-js": "^3.27.2",
     "find-cache-dir": "^4.0.0",
     "vue": "^3.2.36",
     "vue-router": "^4.1.6",
     "vue3-moveable": "^0.3.0",
+    "vue-axios": "^3.4.1",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "*",
-    "@vue/cli-service": "*",
-    "@vue/compiler-sfc": "*",
-    "node-sass": "*",
-    "sass-loader": "*"
+    "@vue/cli-plugin-babel": "5.0.8",
+    "@vue/cli-service": "5.0.8",
+    "@vue/compiler-sfc": "3.2.47",
+    "node-sass": "8.0.0",
+    "sass-loader": "13.2.0"
   }
 }
