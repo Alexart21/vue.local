@@ -31,7 +31,7 @@ function readCookie(name) {
 
 //
 import html2canvas from '@/assets/js/html2canvas'
-import axios from 'axios'
+import axios from 'axios';
 import ProgressBar from '@/components/leftBlocks/ProgressBar.vue'
 export default {
   components: {
